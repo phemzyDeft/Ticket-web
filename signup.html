@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Ticketmaster</title>
+  <link rel="stylesheet" href="index.css">
+  <script>
+    // Function to handle sign up
+    function handleSignUp(event) {
+      event.preventDefault();
+      
+      // Clear previous errors
+      clearErrors();
+      
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      
+      let hasErrors = false;
+      
+      // Validation
+      if (!firstName) {
+        showError('first-name', 'First name is required');
+        hasErrors = true;
+      }
+      
+      if (!lastName) {
+        showError('last-name', 'Last name is required');
+        hasErrors = true;
+      }
+      
+      if (!email) {
+        showError('email', 'Email address is required');
+        hasErrors = true;
+      } else if (!isValidEmail(email)) {
+        showError('email', 'Please enter a valid email address');
+        hasErrors = true;
+      }
+      
+      if (!password) {
+        showError('password', 'Password is required');
+        hasErrors = true;
+      } else if (password.length < 6) {
+        showError('password', 'Password must be at least 6 characters long');
+        hasErrors = true;
+      }
+      
+      if (!confirmPassword) {
+        showError('confirm-password', 'Please confirm your password');
+        hasErrors = true;
+      } else if (password !== confirmPassword) {
+        showError('confirm-password', 'Passwords do not match');
+        hasErrors = true;
+      }
+      
+      if (hasErrors) {
+        return;
+      }
+      
+      // Simulate successful sign up (don't auto-login)
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userName', firstName + ' ' + lastName);
+      // Don't set isLoggedIn to true - user needs to login
+      
+      // Show success modal
+      showSuccessModal();
+    }
+    
+    // Helper function to validate email
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+    
+    // Function to show error below input field
+    function showError(fieldId, message) {
+      const field = document.getElementById(fieldId);
+      const errorDiv = document.getElementById(fieldId + '-error');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+      }
+      field.classList.add('error');
+    }
+    
+    // Function to clear all errors
+    function clearErrors() {
+      const errorElements = document.querySelectorAll('.error-message');
+      errorElements.forEach(error => {
+        error.style.display = 'none';
+      });
+      
+      const inputFields = document.querySelectorAll('.form-input');
+      inputFields.forEach(field => {
+        field.classList.remove('error');
+      });
+    }
+    
+    // Show success modal
+    function showSuccessModal() {
+      const modal = document.getElementById('success-modal');
+      modal.style.display = 'flex';
+    }
+    
+    // Close success modal and go to login
+    function goToLogin() {
+      const modal = document.getElementById('success-modal');
+      modal.style.display = 'none';
+      window.location.href = 'login.html';
+    }
+    
+    // Enable the sign up button when all fields are filled
+    function enableSignUpButton() {
+      const firstName = document.getElementById('first-name').value;
+      const lastName = document.getElementById('last-name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      
+      const signUpBtn = document.getElementById('signup-btn');
+      
+      if (firstName && lastName && email && password && confirmPassword) {
+        signUpBtn.disabled = false;
+        signUpBtn.classList.remove('disabled');
+        signUpBtn.classList.add('enabled');
+      } else {
+        signUpBtn.disabled = true;
+        signUpBtn.classList.add('disabled');
+        signUpBtn.classList.remove('enabled');
+      }
+    }
+    
+    // Toggle password visibility
+    function togglePasswordVisibility(inputId, iconId) {
+      const passwordInput = document.getElementById(inputId);
+      const toggleIcon = document.getElementById(iconId);
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.innerHTML = '👁️';
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.innerHTML = '👁️‍🗨️';
+      }
+    }
+    
+    // Load page when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add event listeners
+      const form = document.querySelector('form');
+      form.addEventListener('submit', handleSignUp);
+      
+      // Add input listeners for all fields
+      const inputs = ['first-name', 'last-name', 'email', 'password', 'confirm-password'];
+      inputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        input.addEventListener('input', enableSignUpButton);
+      });
+      
+      // Add password toggle listeners
+      document.getElementById('toggle-password').addEventListener('click', () => togglePasswordVisibility('password', 'toggle-icon-1'));
+      document.getElementById('toggle-confirm-password').addEventListener('click', () => togglePasswordVisibility('confirm-password', 'toggle-icon-2'));
+      
+      // Add sign up button listener
+      const signUpBtn = document.getElementById('signup-btn');
+      signUpBtn.addEventListener('click', handleSignUp);
+    });
+  </script>
+</head>
+
+<body>
+  <div class="login-container">
+    <!-- Left Column - Welcome Section -->
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <h1 class="welcome-title">WELCOME</h1>
+        <div class="welcome-divider"></div>
+        <p class="welcome-description">
+          Discover millions of events, get alerts about your favorite artists, teams, plays and more — plus always- secure, effortless ticketing.
+        </p>
+        <div class="welcome-logo">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Sign Up Form -->
+    <div class="login-section">
+      <div class="login-content">
+        <h2 class="login-title">CREATE ACCOUNT</h2>
+        <p class="login-subtitle">Join Ticketmaster to access your tickets and discover amazing events.</p>
+        
+        <form class="login-form">
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="first-name" class="form-label">First Name</label>
+              <input 
+                type="text" 
+                id="first-name" 
+                name="firstName" 
+                class="form-input" 
+                required
+              />
+              <div id="first-name-error" class="error-message"></div>
+            </div>
+            <div class="form-group half">
+              <label for="last-name" class="form-label">Last Name</label>
+              <input 
+                type="text" 
+                id="last-name" 
+                name="lastName" 
+                class="form-input" 
+                required
+              />
+              <div id="last-name-error" class="error-message"></div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-input" 
+              autocomplete="email"
+              required
+            />
+            <div id="email-error" class="error-message"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <div class="password-input-container">
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                class="form-input password-input" 
+                required
+              />
+              <button type="button" id="toggle-password" class="password-toggle">
+                <span id="toggle-icon-1">👁️‍🗨️</span>
+              </button>
+            </div>
+            <div id="password-error" class="error-message"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="confirm-password" class="form-label">Confirm Password</label>
+            <div class="password-input-container">
+              <input 
+                type="password" 
+                id="confirm-password" 
+                name="confirmPassword" 
+                class="form-input password-input" 
+                required
+              />
+              <button type="button" id="toggle-confirm-password" class="password-toggle">
+                <span id="toggle-icon-2">👁️‍🗨️</span>
+              </button>
+            </div>
+            <div id="confirm-password-error" class="error-message"></div>
+          </div>
+          
+          <button type="submit" id="signup-btn" class="continue-btn disabled" disabled>
+            Create Account
+          </button>
+          
+          <div class="signup-section">
+            <p class="signup-text">Already have an account?</p>
+            <a href="login.html" class="signup-link">Sign In</a>
+          </div>
+        </form>
+        
+        <div class="legal-text">
+          <p>
+            By creating an account, I acknowledge that I have read and agree to the current 
+            <a href="https://help.ticketmaster.com/hc/en-us/articles/10468830739345-Terms-of-Use" target="_blank" class="legal-link">Terms of Use</a>, 
+            including the arbitration agreement and class action waiver, updated in August 2025, and understand that information will be used as described in our 
+            <a href="https://privacy.ticketmaster.com/privacy-policy" target="_blank" class="legal-link">Privacy Policy</a>.
+          </p>
+          <p>
+            As set forth in our Privacy Policy, we may use your information for email marketing, including promotions and updates on our own or third-party products. You can opt out of our marketing emails anytime.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="success-modal" class="success-modal">
+    <div class="success-modal-content">
+      <div class="success-icon">✅</div>
+      <h3 class="success-title">Account Created Successfully!</h3>
+      <p class="success-message">Welcome to Ticketmaster! Your account has been created. Please sign in with your credentials to continue.</p>
+      <button onclick="goToLogin()" class="success-button">Sign In</button>
+    </div>
+  </div>
+</body>
+
+</html>

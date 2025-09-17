@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accept Ticket - Ticketmaster</title>
+    <link href="index.css" rel="stylesheet">
+    <style>
+        /* Accept Ticket Page Specific Styles */
+        .accept-ticket-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ticket-header {
+            background: linear-gradient(135deg, #0066cc 0%, #004499 50%, #003366 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ticket-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 2px, transparent 2px),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px, 20px 20px;
+        }
+        
+        .ticket-logo {
+            font-size: 28px;
+            font-style: italic;
+            font-weight: bold;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .ticket-title {
+            font-size: 32px;
+            margin: 0;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .transfer-icon {
+            width: 40px;
+            height: 40px;
+            background: #8B5CF6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -20px auto 30px auto;
+            position: relative;
+            z-index: 3;
+        }
+        
+        .transfer-arrow {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .ticket-content {
+            padding: 30px;
+        }
+        
+        .greeting {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .sender-info {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .event-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            margin: 0 0 20px 0;
+        }
+        
+        .event-details {
+            margin-bottom: 30px;
+        }
+        
+        .event-detail-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+        
+        .event-detail-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        
+        .event-detail-text {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .event-detail-label {
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .seat-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .seat-details-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+        
+        .seat-details-table td:first-child {
+            font-weight: bold;
+            color: #666;
+            width: 30%;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .accept-button {
+            background: #0066cc;
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        
+        .accept-button:hover {
+            background: #0052a3;
+        }
+        
+        .decline-button {
+            background: #dc3545;
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        
+        .decline-button:hover {
+            background: #c82333;
+        }
+        
+        .footer-text {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .footer-text p {
+            margin: 0 0 15px 0;
+        }
+        
+        .warning-text {
+            font-weight: bold;
+            margin: 30px 0 0 0;
+            text-align: center;
+            color: #000;
+            font-size: 16px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #dc3545;
+            font-size: 18px;
+        }
+        
+        /* Accept Modal Styles */
+        .accept-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .accept-modal.open {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .accept-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: scale(0.9) translateY(-20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        
+        .accept-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        
+        .accept-modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 24px;
+            line-height: 1;
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        
+        .accept-modal-body {
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .accept-modal-body p {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            color: #374151;
+            line-height: 1.5;
+        }
+        
+        .accept-modal-body p:last-of-type {
+            margin-bottom: 24px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .signin-btn {
+            background: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            min-width: 180px;
+        }
+        
+        .signin-btn:hover {
+            background: #0052a3;
+        }
+        
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            min-width: 120px;
+        }
+        
+        .back-btn:hover {
+            background: #4b5563;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .accept-ticket-container {
+                padding: 10px;
+                margin: 10px;
+            }
+            
+            .ticket-header {
+                padding: 20px;
+            }
+            
+            .ticket-content {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .accept-button, .decline-button {
+                margin: 0;
+                width: 100%;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+            
+            .signin-btn, .back-btn {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+    <div class="accept-ticket-container">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            Loading ticket details...
+        </div>
+        
+        <!-- Error State -->
+        <div id="error" class="error" style="display: none;">
+            Error loading ticket details. Please check the URL parameters.
+        </div>
+        
+        <!-- Ticket Details Content -->
+        <div id="ticket-content" style="display: none;">
+            <!-- Header with pattern background -->
+            <div class="ticket-header">
+                <div class="ticket-logo">
+                    ticketmaster<span style="font-size: 10px; vertical-align: super;">®</span>
+                </div>
+                <h1 class="ticket-title">Ticket Transfer</h1>
+            </div>
+            
+            <!-- Transfer icon separator -->
+            <div class="transfer-icon">
+                <div class="transfer-arrow">↗</div>
+            </div>
+            
+            <!-- Main content area -->
+            <div class="ticket-content">
+                <!-- Greeting -->
+                <p class="greeting">Hi <span id="recipient-name">Loading...</span>,</p>
+                
+                <p class="sender-info">
+                    <strong id="sender-name">Loading...</strong> has sent you <span id="ticket-count">Loading...</span> ticket<span id="ticket-plural">s</span>.
+                </p>
+                
+                <!-- Event Title -->
+                <h2 id="event-title" class="event-title">Loading...</h2>
+                
+                <!-- Event Details with Icons -->
+                <div class="event-details">
+                    <div class="event-detail-row">
+                        <div class="event-detail-icon">🏢</div>
+                        <div class="event-detail-text">
+                            <span class="event-detail-label" id="event-venue">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-detail-row">
+                        <div class="event-detail-icon">📅</div>
+                        <div class="event-detail-text">
+                            <span class="event-detail-label" id="event-date">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-detail-row">
+                        <div class="event-detail-icon">🎫</div>
+                        <div class="event-detail-text">
+                            <span class="event-detail-label" id="ticket-count-display">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seat Details Table -->
+                <table class="seat-details-table">
+                    <tr>
+                        <td>Section</td>
+                        <td id="section">Loading...</td>
+                    </tr>
+                    <tr>
+                        <td>Row</td>
+                        <td id="row">Loading...</td>
+                    </tr>
+                    <tr>
+                        <td>Seat</td>
+                        <td id="seats">Loading...</td>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td id="ticket-type">Loading...</td>
+                    </tr>
+                </table>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="accept-button" onclick="acceptTicket()">Accept Ticket(s)</button>
+                    <button class="decline-button" onclick="declineTicket()">Decline</button>
+                </div>
+                
+                <!-- Footer Text -->
+                <div class="footer-text">
+                    <p>Accepting tickets sent to you is free. Log in to your Ticketmaster account or create a new account to accept your ticket(s).</p>
+                    
+                    <p>If you purchased these tickets through an External Resale Platform and the event is unexpectedly canceled, postponed, or significantly changed, you should contact that third party for information about refund options.</p>
+                    
+                    <p class="warning-text">THIS EMAIL DOES NOT GRANT ACCESS TO THE EVENT</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accept Modal -->
+    <div id="accept-modal" class="accept-modal">
+        <div class="accept-modal-content">
+            <div class="accept-modal-header">
+                <h3>✅ Ticket Accepted!</h3>
+                <button class="close-modal" onclick="closeAcceptModal()">&times;</button>
+            </div>
+            <div class="accept-modal-body">
+                <p>Your ticket has been successfully accepted!</p>
+                <p>To view your tickets, please sign in to your Ticketmaster account or create a new account.</p>
+                <div class="modal-buttons">
+                    <button class="signin-btn" onclick="goToSignIn()">Sign In / Create Account</button>
+                    <button class="back-btn" onclick="goBack()">Go Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        // Function to display ticket data from URL parameters
+        function displayTicketData() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const content = document.getElementById('ticket-content');
+            
+            try {
+                // Get data from URL parameters
+                const recipientName = getUrlParameter('recipientName') || 'Guest';
+                const senderName = getUrlParameter('senderName') || 'Unknown Sender';
+                const eventTitle = getUrlParameter('eventName') || 'Event Title';
+                const eventVenue = getUrlParameter('eventDetails') || 'Venue Name';
+                const eventDate = getUrlParameter('eventDate') || 'Event Date';
+                const eventTime = getUrlParameter('eventTime') || 'Event Time';
+                const ticketCount = getUrlParameter('ticketCount') || '1';
+                const section = getUrlParameter('section') || 'Section';
+                const row = getUrlParameter('row') || 'Row';
+                const seats = getUrlParameter('seats') || 'Seats';
+                const ticketType = getUrlParameter('ticketType') || 'General';
+                
+                // Check if we have minimum required data
+                if (!eventTitle || eventTitle === 'Event Title') {
+                    throw new Error('Missing required event data');
+                }
+                
+                // Update the page content
+                document.getElementById('recipient-name').textContent = recipientName;
+                document.getElementById('sender-name').textContent = senderName;
+                document.getElementById('ticket-count').textContent = ticketCount;
+                document.getElementById('ticket-count-display').textContent = ticketCount + ' ticket' + (ticketCount > 1 ? 's' : '');
+                document.getElementById('ticket-plural').textContent = ticketCount > 1 ? 's' : '';
+                document.getElementById('event-title').textContent = eventTitle;
+                document.getElementById('event-venue').textContent = eventVenue;
+                document.getElementById('event-date').textContent = eventDate + ' at ' + eventTime;
+                document.getElementById('section').textContent = section;
+                document.getElementById('row').textContent = row;
+                document.getElementById('seats').textContent = seats;
+                document.getElementById('ticket-type').textContent = ticketType;
+                
+                // Update page title
+                document.title = `${eventTitle} - Accept Ticket`;
+                
+                // Hide loading, show content
+                loading.style.display = 'none';
+                content.style.display = 'block';
+                
+            } catch (err) {
+                console.error('Error loading ticket data:', err);
+                loading.style.display = 'none';
+                error.style.display = 'block';
+            }
+        }
+        
+        // Function to accept ticket
+        function acceptTicket() {
+            // Get the event date and time (they're combined in event-date)
+            const eventDateTime = document.getElementById('event-date').textContent;
+            const [eventDate, eventTime] = eventDateTime.split(' at ');
+            
+            // Store the accepted ticket data in localStorage
+            const ticketData = {
+                eventName: document.getElementById('event-title').textContent,
+                recipientName: document.getElementById('recipient-name').textContent,
+                eventDetails: document.getElementById('event-venue').textContent,
+                eventDate: eventDate || eventDateTime,
+                eventTime: eventTime || '6:00 PM',
+                section: document.getElementById('section').textContent,
+                row: document.getElementById('row').textContent,
+                seats: document.getElementById('seats').textContent,
+                ticketType: document.getElementById('ticket-type').textContent,
+                acceptedAt: new Date().toISOString(),
+                status: 'accepted'
+            };
+            
+            // Store in localStorage
+            localStorage.setItem('acceptedTicket', JSON.stringify(ticketData));
+            localStorage.setItem('hasAcceptedTicket', 'true');
+            
+            // Show modal after accepting
+            const modal = document.getElementById('accept-modal');
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Function to decline ticket
+        function declineTicket() {
+            if (confirm('Are you sure you want to decline this ticket?')) {
+                alert('Ticket declined. The sender will be notified.');
+                // Here you can add logic to process the ticket decline
+            }
+        }
+        
+        // Function to close accept modal
+        function closeAcceptModal() {
+            const modal = document.getElementById('accept-modal');
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        
+        // Function to go to sign in page
+        function goToSignIn() {
+            closeAcceptModal();
+            window.location.href = 'login.html';
+        }
+        
+        // Function to go back
+        function goBack() {
+            closeAcceptModal();
+            window.history.back();
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('accept-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAcceptModal();
+            }
+        });
+        
+        // Close modal with escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAcceptModal();
+            }
+        });
+        
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', displayTicketData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket URL Generator - Ticketmaster</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #0066cc;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #0052a3;
+        }
+        
+        .url-output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .url-output h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .url-text {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            margin-top: 10px;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+        }
+        
+        .example-urls {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 6px;
+        }
+        
+        .example-urls h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        
+        .example-link {
+            display: block;
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #0066cc;
+            border: 1px solid #ddd;
+        }
+        
+        .example-link:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 Ticket URL Generator</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Generate URLs for ticket transfers that will display personalized ticket details
+        </p>
+        
+        <form id="ticketForm">
+            <div class="form-group">
+                <label for="recipientName">Recipient Name:</label>
+                <input type="text" id="recipientName" value="Oluwafemi" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="senderName">Sender Name:</label>
+                <input type="text" id="senderName" value="John Doe" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventTitle">Event Title:</label>
+                <input type="text" id="eventTitle" value="Coldplay: Music Of The Spheres World Tour" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventVenue">Event Venue:</label>
+                <input type="text" id="eventVenue" value="Gillette Stadium - Foxborough, MA" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventDate">Event Date & Time:</label>
+                <input type="text" id="eventDate" value="Wednesday, July 16, 2025 at 6:00 PM" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="ticketCount">Number of Tickets:</label>
+                <select id="ticketCount" required>
+                    <option value="1">1 Ticket</option>
+                    <option value="2" selected>2 Tickets</option>
+                    <option value="3">3 Tickets</option>
+                    <option value="4">4 Tickets</option>
+                    <option value="5">5 Tickets</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="section">Section:</label>
+                <input type="text" id="section" value="Section 101" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="row">Row:</label>
+                <input type="text" id="row" value="Row 15" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="seats">Seats:</label>
+                <input type="text" id="seats" value="Seats 12-13" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="acceptUrl">Accept URL (where users go after accepting):</label>
+                <input type="url" id="acceptUrl" value="https://my.ticketmaster.com/accept-ticket" required>
+            </div>
+            
+            <button type="button" onclick="generateUrl()">Generate Ticket URL</button>
+            <button type="button" onclick="resetForm()">Reset Form</button>
+        </form>
+        
+        <div id="urlOutput" class="url-output" style="display: none;">
+            <h3>Generated Ticket URL:</h3>
+            <div id="urlText" class="url-text"></div>
+            <button class="copy-btn" onclick="copyUrl()">Copy URL</button>
+            <button class="copy-btn" onclick="openUrl()">Open Ticket Page</button>
+        </div>
+        
+        <div class="example-urls">
+            <h3>📋 Example URLs:</h3>
+            <p>Click these links to see how different ticket data looks:</p>
+            
+            <a href="ticket-details.html?recipientName=Oluwafemi&senderName=John%20Doe&eventTitle=Coldplay:%20Music%20Of%20The%20Spheres%20World%20Tour&eventVenue=Gillette%20Stadium%20-%20Foxborough,%20MA&eventDate=Wednesday,%20July%2016,%202025%20at%206:00%20PM&ticketCount=2&section=Section%20101&row=Row%2015&seats=Seats%2012-13&acceptUrl=https://my.ticketmaster.com/accept-ticket" class="example-link">
+                🎵 Coldplay Concert - 2 Tickets
+            </a>
+            
+            <a href="ticket-details.html?recipientName=Sarah&senderName=Mike%20Johnson&eventTitle=Taylor%20Swift:%20The%20Eras%20Tour&eventVenue=MetLife%20Stadium%20-%20East%20Rutherford,%20NJ&eventDate=Saturday,%20August%2024%20at%207:30%20PM&ticketCount=1&section=Section%20205&row=Row%208&seats=Seat%2042&acceptUrl=https://my.ticketmaster.com/accept-ticket" class="example-link">
+                🎤 Taylor Swift Concert - 1 Ticket
+            </a>
+            
+            <a href="ticket-details.html?recipientName=Alex&senderName=Emma%20Wilson&eventTitle=NBA%20Finals:%20Lakers%20vs%20Celtics&eventVenue=TD%20Garden%20-%20Boston,%20MA&eventDate=Sunday,%20June%2015,%202025%20at%203:00%20PM&ticketCount=4&section=Section%20120&row=Row%205&seats=Seats%201-4&acceptUrl=https://my.ticketmaster.com/accept-ticket" class="example-link">
+                🏀 NBA Finals - 4 Tickets
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function generateUrl() {
+            const baseUrl = 'ticket-details.html';
+            const params = new URLSearchParams();
+            
+            // Get form values
+            const recipientName = document.getElementById('recipientName').value;
+            const senderName = document.getElementById('senderName').value;
+            const eventTitle = document.getElementById('eventTitle').value;
+            const eventVenue = document.getElementById('eventVenue').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const ticketCount = document.getElementById('ticketCount').value;
+            const section = document.getElementById('section').value;
+            const row = document.getElementById('row').value;
+            const seats = document.getElementById('seats').value;
+            const acceptUrl = document.getElementById('acceptUrl').value;
+            
+            // Add parameters
+            params.append('recipientName', recipientName);
+            params.append('senderName', senderName);
+            params.append('eventTitle', eventTitle);
+            params.append('eventVenue', eventVenue);
+            params.append('eventDate', eventDate);
+            params.append('ticketCount', ticketCount);
+            params.append('section', section);
+            params.append('row', row);
+            params.append('seats', seats);
+            params.append('acceptUrl', acceptUrl);
+            
+            // Generate full URL
+            const fullUrl = `${baseUrl}?${params.toString()}`;
+            
+            // Display URL
+            document.getElementById('urlText').textContent = fullUrl;
+            document.getElementById('urlOutput').style.display = 'block';
+        }
+        
+        function copyUrl() {
+            const urlText = document.getElementById('urlText').textContent;
+            navigator.clipboard.writeText(urlText).then(() => {
+                alert('URL copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy URL: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = urlText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('URL copied to clipboard!');
+            });
+        }
+        
+        function openUrl() {
+            const urlText = document.getElementById('urlText').textContent;
+            window.open(urlText, '_blank');
+        }
+        
+        function resetForm() {
+            document.getElementById('ticketForm').reset();
+            document.getElementById('urlOutput').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticketmaster Account | Connected Accounts</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root { --tm-blue:#026cdf; --tm-dark-blue:#024ddf; --tm-dark:#121212; --tm-gray:#767676; --tm-light-gray:#f6f6f6; --tm-border:#e0e0e0; --sidebar-width:280px; }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--tm-dark);line-height:1.5;background:var(--tm-light-gray);overflow-x:hidden}
+        .app-layout{display:flex;min-height:100vh}
+        .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:linear-gradient(180deg,#121212,#1a1a1a);color:#fff;z-index:100;overflow-y:auto;box-shadow:2px 0 10px rgba(0,0,0,.1)}
+        .sidebar-header{padding:32px 24px 24px;border-bottom:1px solid rgba(255,255,255,.1)}
+        .sidebar-logo{font-size:24px;font-weight:700;color:var(--tm-blue);text-decoration:none;display:block}
+        .sidebar-nav{padding:24px 0}.nav-list{list-style:none}.nav-item{margin-bottom:4px}
+        .nav-link{display:flex;align-items:center;padding:16px 24px;color:rgba(255,255,255,.8);text-decoration:none;transition:.3s;border-left:3px solid transparent;font-weight:500}
+        .nav-link:hover{background:rgba(255,255,255,.05);color:#fff;border-left-color:var(--tm-blue)}
+        .nav-link.active{background:rgba(2,109,223,.1);color:#fff;border-left-color:var(--tm-blue)}
+        .nav-icon{width:20px;height:20px;margin-right:12px;fill:currentColor;flex-shrink:0}
+        .main-content{flex:1;margin-left:var(--sidebar-width);min-height:100vh}
+        .page-header{background:linear-gradient(135deg,var(--tm-dark-blue),var(--tm-blue));color:#fff;padding:48px 40px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+        .page-title{font-size:2.5rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
+        .page-subtitle{font-size:1.1rem;opacity:.9}
+        .content-area{padding:40px;max-width:1200px;margin:0 auto}
+        .card{background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);padding:32px;margin-bottom:32px;border:1px solid rgba(0,0,0,.05)}
+        .card-header{display:flex;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--tm-border)}
+        .card-icon{width:48px;height:48px;margin-right:20px;fill:var(--tm-blue);background:rgba(2,109,223,.1);border-radius:12px;padding:12px}
+        .card-title{font-size:1.75rem;font-weight:600;margin:0}
+        .account-list{list-style:none}
+        .account-item{display:flex;align-items:center;padding:20px;border:1px solid var(--tm-border);border-radius:12px;margin-bottom:16px;background:#fff}
+        .account-item:hover{border-color:var(--tm-blue);box-shadow:0 4px 16px rgba(2,109,223,.1)}
+        .account-logo{width:40px;height:40px;margin-right:16px;border-radius:8px}
+        @media (max-width:768px){.sidebar{transform:translateX(-100%);transition:transform .3s}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0}.content-area{padding:20px}.page-header{padding:32px 20px}.page-title{font-size:2rem}.card{padding:24px}}
+        .hamburger-btn{display:none}
+        @media (max-width:768px){.hamburger-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:12px;border:none;border-radius:8px;background:#fff;color:#121212;box-shadow:0 2px 8px rgba(0,0,0,.12);cursor:pointer}.hamburger-btn svg{width:24px;height:24px}}
+        .sidebar-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;z-index:90}
+        .sidebar-overlay.open{opacity:1;visibility:visible}
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header"><a href="index.html" class="sidebar-logo">Ticketmaster</a></div>
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="profile-details.html" class="nav-link"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>Profile Details</a></li>
+                    <li class="nav-item"><a href="index.html" class="nav-link"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7z"/></svg>Upcoming Events</a></li>
+                    <li class="nav-item"><a href="index.html" class="nav-link"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0 0 18.06 7H15.9c-.38 0-.73.21-.89.55L14.5 10H14v6h-2V9H9v11H7V9H5v11H3V9H1v11h2v-6h2v6h2v-6h2v6h2v-6h2v6h2z"/></svg>My Tickets</a></li>
+                    <li class="nav-item"><a href="connected-accounts.html" class="nav-link active"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0 0 18.06 7H15.9c-.38 0-.73.21-.89.55L14.5 10H14v6h-2V9H9v11H7V9H5v11H3V9H1v11h2v-6h2v6h2v-6h2v6h2v-6h2v6h2z"/></svg>Connected Accounts</a></li>
+                    <li class="nav-item"><a href="billing-info.html" class="nav-link"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>Billing Information</a></li>
+                    <li class="nav-item"><a href="notifications.html" class="nav-link"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>Notifications</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="page-header">
+                <button id="open-sidebar" class="hamburger-btn" aria-label="Open navigation"><svg viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg></button>
+                <h1 class="page-title">Connected Accounts</h1>
+                <p class="page-subtitle">Manage linked social accounts</p>
+            </header>
+            <div class="content-area">
+                <section class="card">
+                    <div class="card-header">
+                        <svg class="card-icon" viewBox="0 0 24 24"><path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.01 2.01 0 0 0 18.06 7H15.9c-.38 0-.73.21-.89.55L14.5 10H14v6h-2V9H9v11H7V9H5v11H3V9H1v11h2v-6h2v6h2v-6h2v6h2v-6h2v6h2z"/></svg>
+                        <h2 class="card-title">Linked Accounts</h2>
+                    </div>
+                    <ul class="account-list">
+                        <li class="account-item"><img class="account-logo" src="https://via.placeholder.com/40x40/4267B2/ffffff?text=FB" alt="Facebook"><div><strong>Facebook</strong><p style="margin:4px 0 0;color:var(--tm-gray);font-size:.9rem;">Connected</p></div></li>
+                        <li class="account-item"><img class="account-logo" src="https://via.placeholder.com/40x40/1DA1F2/ffffff?text=TW" alt="Twitter"><div><strong>Twitter</strong><p style="margin:4px 0 0;color:var(--tm-gray);font-size:.9rem;">Not connected</p></div></li>
+                        <li class="account-item"><img class="account-logo" src="https://via.placeholder.com/40x40/E4405F/ffffff?text=IG" alt="Instagram"><div><strong>Instagram</strong><p style="margin:4px 0 0;color:var(--tm-gray);font-size:.9rem;">Connected</p></div></li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded',()=>{
+            const sidebar=document.querySelector('.sidebar');
+            const openBtn=document.getElementById('open-sidebar');
+            const overlay=document.getElementById('sidebar-overlay');
+            function openSidebar(){sidebar.classList.add('open');overlay.classList.add('open');document.body.style.overflow='hidden'}
+            function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('open');document.body.style.overflow=''}
+            if(openBtn){openBtn.addEventListener('click',e=>{e.preventDefault();openSidebar()})}
+            if(overlay){overlay.addEventListener('click',e=>{e.preventDefault();closeSidebar()})}
+            document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sidebar.classList.contains('open'))closeSidebar()});
+            window.addEventListener('resize',()=>{if(window.innerWidth>=769)closeSidebar()});
+            document.querySelectorAll('.sidebar .nav-link').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)closeSidebar()}));
+        });
+    </script>
+</body>
+</html>
+
+

