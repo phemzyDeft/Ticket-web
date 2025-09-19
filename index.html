@@ -90,7 +90,7 @@
               // Extract the day and time from formatted date like "Mon, Dec 15, 2025, 1:00 PM"
               const parts = ticketData.eventDate.split(',');
               const dayName = parts[0].trim(); // "Mon"
-              const timePart = parts[2] ? parts[2].trim() : ticketData.eventTime; // "1:00 PM"
+              const timePart = parts.length >= 4 ? parts[3].trim() : ticketData.eventTime; // "1:00 PM"
               eventDatetime.textContent = `${dayName} - ${timePart}`;
             } else {
               eventDatetime.textContent = ticketData.eventTime;
@@ -102,9 +102,16 @@
           try {
             // Handle formatted date strings like "Mon, Dec 15, 2025, 1:00 PM"
             if (ticketData.eventDate.includes(',')) {
-              // Extract just the date part before the time
-              const datePart = ticketData.eventDate.split(',')[1].trim(); // "Dec 15, 2025"
-              eventDate = new Date(datePart);
+              // Split by comma and get the date part
+              const parts = ticketData.eventDate.split(',');
+              if (parts.length >= 3) {
+                // "Mon, Dec 15, 2025, 1:00 PM" -> ["Mon", "Dec 15", "2025", "1:00 PM"]
+                const monthDay = parts[1].trim(); // "Dec 15"
+                const year = parts[2].trim(); // "2025"
+                eventDate = new Date(`${monthDay}, ${year}`);
+              } else {
+                eventDate = new Date(ticketData.eventDate);
+              }
             } else {
               eventDate = new Date(ticketData.eventDate);
             }
@@ -134,9 +141,16 @@
           try {
             // Handle formatted date strings like "Mon, Dec 15, 2025, 1:00 PM"
             if (ticketData.eventDate.includes(',')) {
-              // Extract just the date part before the time
-              const datePart = ticketData.eventDate.split(',')[1].trim(); // "Dec 15, 2025"
-              eventDate = new Date(datePart);
+              // Split by comma and get the date part
+              const parts = ticketData.eventDate.split(',');
+              if (parts.length >= 3) {
+                // "Mon, Dec 15, 2025, 1:00 PM" -> ["Mon", "Dec 15", "2025", "1:00 PM"]
+                const monthDay = parts[1].trim(); // "Dec 15"
+                const year = parts[2].trim(); // "2025"
+                eventDate = new Date(`${monthDay}, ${year}`);
+              } else {
+                eventDate = new Date(ticketData.eventDate);
+              }
             } else {
               eventDate = new Date(ticketData.eventDate);
             }
