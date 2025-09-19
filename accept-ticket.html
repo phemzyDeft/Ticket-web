@@ -538,6 +538,12 @@
                 const seats = getUrlParameter('seats') || 'Seats';
                 const ticketType = getUrlParameter('ticketType') || 'General';
                 
+                // Debug logging
+                console.log('URL Parameters:', {
+                    recipientName, senderName, eventTitle, eventVenue, 
+                    eventDate, eventTime, ticketCount, section, row, seats, ticketType
+                });
+                
                 // Check if we have minimum required data
                 if (!eventTitle || eventTitle === 'Event Title') {
                     throw new Error('Missing required event data');
