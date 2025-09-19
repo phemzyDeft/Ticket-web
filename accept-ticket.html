@@ -8,94 +8,55 @@
     <style>
         /* Accept Ticket Page Specific Styles */
         .accept-ticket-container {
-            max-width: 600px;
-            margin: 20px auto;
+            max-width: 500px;
+            margin: 0 auto;
             padding: 0;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
         }
         
         .ticket-header {
-            background: linear-gradient(135deg, #0066cc 0%, #004499 50%, #003366 100%);
+            background: #0066cc;
             color: white;
-            padding: 30px;
-            border-radius: 12px 12px 0 0;
+            padding: 20px;
             text-align: center;
             position: relative;
-            overflow: hidden;
-        }
-        
-        .ticket-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 2px, transparent 2px),
-                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px, 20px 20px;
         }
         
         .ticket-logo {
-            font-size: 28px;
+            font-size: 24px;
             font-style: italic;
             font-weight: bold;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 2;
+            margin-bottom: 10px;
         }
         
         .ticket-title {
-            font-size: 32px;
-            margin: 0;
-            font-weight: bold;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .transfer-icon {
-            width: 40px;
-            height: 40px;
-            background: #8B5CF6;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: -20px auto 30px auto;
-            position: relative;
-            z-index: 3;
-        }
-        
-        .transfer-arrow {
-            color: white;
             font-size: 18px;
-            font-weight: bold;
+            margin: 0;
+            font-weight: normal;
         }
         
         .ticket-content {
-            padding: 30px;
+            padding: 20px;
         }
         
         .greeting {
             font-size: 16px;
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .sender-info {
             font-size: 16px;
             color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         .event-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #000;
-            margin: 0 0 20px 0;
+            margin: 0 0 15px 0;
         }
         
         .event-details {
@@ -133,8 +94,8 @@
             border-collapse: collapse;
             margin: 20px 0;
             background: #f8f9fa;
-            border-radius: 8px;
-            overflow: hidden;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
         }
         
         .seat-details-table td {
@@ -149,6 +110,10 @@
             width: 30%;
         }
         
+        .seat-details-table tr:last-child td {
+            border-bottom: none;
+        }
+        
         .action-buttons {
             text-align: center;
             margin: 30px 0;
@@ -157,16 +122,17 @@
         .accept-button {
             background: #0066cc;
             color: white;
-            padding: 16px 32px;
+            padding: 14px 24px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 16px;
             font-weight: bold;
             text-decoration: none;
             display: inline-block;
-            margin: 0 10px;
+            margin: 0 8px;
             transition: background-color 0.3s;
             cursor: pointer;
+            min-width: 140px;
         }
         
         .accept-button:hover {
@@ -174,22 +140,23 @@
         }
         
         .decline-button {
-            background: #dc3545;
+            background: #6c757d;
             color: white;
-            padding: 16px 32px;
+            padding: 14px 24px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 16px;
             font-weight: bold;
             text-decoration: none;
             display: inline-block;
-            margin: 0 10px;
+            margin: 0 8px;
             transition: background-color 0.3s;
             cursor: pointer;
+            min-width: 140px;
         }
         
         .decline-button:hover {
-            background: #c82333;
+            background: #5a6268;
         }
         
         .footer-text {
@@ -403,16 +370,15 @@
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .accept-ticket-container {
-                padding: 10px;
-                margin: 10px;
+                margin: 0;
             }
             
             .ticket-header {
-                padding: 20px;
+                padding: 15px;
             }
             
             .ticket-content {
-                padding: 20px;
+                padding: 15px;
             }
             
             .action-buttons {
@@ -451,17 +417,12 @@
         
         <!-- Ticket Details Content -->
         <div id="ticket-content" style="display: none;">
-            <!-- Header with pattern background -->
+            <!-- Header -->
             <div class="ticket-header">
                 <div class="ticket-logo">
-                    ticketmaster<span style="font-size: 10px; vertical-align: super;">®</span>
+                    ticketmaster<span style="font-size: 8px; vertical-align: super;">®</span>
                 </div>
-                <h1 class="ticket-title">Ticket Transfer</h1>
-            </div>
-            
-            <!-- Transfer icon separator -->
-            <div class="transfer-icon">
-                <div class="transfer-arrow">↗</div>
+                <h1 class="ticket-title">Accept Ticket Transfer</h1>
             </div>
             
             <!-- Main content area -->
@@ -531,7 +492,7 @@
                     <div class="notice-icon">⏰</div>
                     <div class="notice-content">
                         <h4>Ticket Processing Information</h4>
-                        <p><strong>Processing Time:</strong> Your tickets will be processed and logged into the system within 42 hours.</p>
+                        <p><strong>Processing Time:</strong> Your tickets will be processed and logged into the system within 72 hours.</p>
                         <p><strong>Availability:</strong> Tickets will be available in your account 24 hours before the event date.</p>
                     </div>
                 </div>
@@ -560,7 +521,7 @@
                 <p>To view your tickets, please sign in to your Ticketmaster account or create a new account.</p>
                 
                 <div class="ticket-timing-info">
-                    <strong>📅 Important:</strong> Tickets may take up to 42 hours to appear in your account, but will always be available 24 hours before the event.
+                    <strong>📅 Important:</strong> Tickets may take up to 72 hours to appear in your account, but will always be available 24 hours before the event.
                 </div>
                 
                 <div class="modal-buttons">
@@ -597,7 +558,7 @@
                 const row = getUrlParameter('row') || 'Row';
                 
                 // Handle template variables that weren't replaced
-                const cleanRow = row.includes('{{') ? 'Row 5' : row;
+                const cleanRow = row.includes('{{') ? '5' : row;
                 const seats = getUrlParameter('seats') || 'Seats';
                 const cleanSeats = seats.includes('{{') ? '9' : seats;
                 const ticketType = getUrlParameter('ticketType') || 'General';
@@ -623,7 +584,17 @@
                 document.getElementById('event-title').textContent = eventTitle;
                 document.getElementById('event-venue').textContent = eventVenue;
                 // Combine date and time properly to avoid duplication
-                const fullDateTime = eventDate.includes(' at ') ? eventDate : eventDate + ' at ' + eventTime;
+                let fullDateTime;
+                if (eventDate.includes(' at ')) {
+                    // If date already includes time, use as is
+                    fullDateTime = eventDate;
+                } else if (eventTime && eventTime !== 'Event Time') {
+                    // If we have a separate time, combine them
+                    fullDateTime = eventDate + ' at ' + eventTime;
+                } else {
+                    // Fallback to just the date
+                    fullDateTime = eventDate;
+                }
                 document.getElementById('event-date').textContent = fullDateTime;
                 document.getElementById('section').textContent = section;
                 document.getElementById('row').textContent = cleanRow;
