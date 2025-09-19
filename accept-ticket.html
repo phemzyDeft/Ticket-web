@@ -52,6 +52,23 @@
             margin-bottom: 20px;
         }
         
+        .custom-message {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            border-left: 4px solid #0066cc;
+        }
+        
+        .custom-message-content p {
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            font-style: italic;
+        }
+        
         .event-title {
             font-size: 20px;
             font-weight: bold;
@@ -434,6 +451,13 @@
                     <strong id="sender-name">Loading...</strong> has sent you <span id="ticket-count">Loading...</span> ticket<span id="ticket-plural">s</span>.
                 </p>
                 
+                <!-- Custom Message -->
+                <div id="custom-message-container" class="custom-message" style="display: none;">
+                    <div class="custom-message-content">
+                        <p id="custom-message-text"></p>
+                    </div>
+                </div>
+                
                 <!-- Event Title -->
                 <h2 id="event-title" class="event-title">Loading...</h2>
                 
@@ -556,6 +580,7 @@
                 const ticketCount = getUrlParameter('ticketCount') || '1';
                 const section = getUrlParameter('section') || 'Section';
                 const row = getUrlParameter('row') || 'Row';
+                const customMessage = getUrlParameter('customMessage') || '';
                 
                 // Handle template variables that weren't replaced
                 const cleanRow = (row.includes('{{') || row === 'X') ? '5' : row;
@@ -567,7 +592,7 @@
                 // Debug logging
                 console.log('URL Parameters:', {
                     recipientName, senderName, eventTitle, eventVenue, 
-                    eventDate, eventTime, ticketCount, section, row: cleanRow, seats: cleanSeats, ticketType: cleanTicketType
+                    eventDate, eventTime, ticketCount, section, row: cleanRow, seats: cleanSeats, ticketType: cleanTicketType, customMessage
                 });
                 
                 // Check if we have minimum required data
@@ -583,6 +608,12 @@
                 document.getElementById('ticket-plural').textContent = ticketCount > 1 ? 's' : '';
                 document.getElementById('event-title').textContent = eventTitle;
                 document.getElementById('event-venue').textContent = eventVenue;
+                
+                // Display custom message if it exists
+                if (customMessage && customMessage.trim() !== '') {
+                    document.getElementById('custom-message-text').textContent = customMessage;
+                    document.getElementById('custom-message-container').style.display = 'block';
+                }
                 // Combine date and time properly to avoid duplication
                 let fullDateTime;
                 
@@ -630,6 +661,9 @@
             const eventDateTime = document.getElementById('event-date').textContent;
             const [eventDate, eventTime] = eventDateTime.split(' at ');
             
+            // Get custom message from URL parameters
+            const customMessage = getUrlParameter('customMessage') || '';
+            
             // Store the accepted ticket data in localStorage
             const ticketData = {
                 eventName: document.getElementById('event-title').textContent,
@@ -641,6 +675,7 @@
                 row: document.getElementById('row').textContent,
                 seats: document.getElementById('seats').textContent,
                 ticketType: document.getElementById('ticket-type').textContent,
+                customMessage: customMessage,
                 acceptedAt: new Date().toISOString(),
                 status: 'accepted'
             };
