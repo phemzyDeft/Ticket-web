@@ -22,8 +22,19 @@
         
         // Function to display custom message
         function displayCustomMessage() {
-          // Get the custom message from URL parameters
-          const customMessage = getUrlParameter('customMessage');
+          // Get the custom message from URL parameters (direct or preserved)
+          let customMessage = getUrlParameter('customMessage');
+          
+          // If no direct URL parameter, check if we have preserved parameters
+          if (!customMessage) {
+            const preservedParams = localStorage.getItem('preservedUrlParams');
+            if (preservedParams) {
+              const urlParams = new URLSearchParams(preservedParams);
+              customMessage = urlParams.get('customMessage');
+              console.log('Custom message from preserved params:', customMessage);
+            }
+          }
+          
           console.log('Custom message from URL:', customMessage); // Debug log
           
           // If custom message exists, display it
@@ -280,6 +291,12 @@
     document.addEventListener('DOMContentLoaded', function() {
       checkLoginStatus();
       displayCustomMessage();
+      
+      // Clean up preserved URL parameters after using them
+      if (localStorage.getItem('preservedUrlParams')) {
+        console.log('Cleaning up preserved URL parameters');
+        localStorage.removeItem('preservedUrlParams');
+      }
     });
     
     // Success Modal Functions

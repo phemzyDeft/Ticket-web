@@ -649,6 +649,14 @@
             localStorage.setItem('acceptedTicket', JSON.stringify(ticketData));
             localStorage.setItem('hasAcceptedTicket', 'true');
             
+            // Store current URL parameters for later use
+            const currentUrl = new URL(window.location.href);
+            const urlParams = currentUrl.searchParams.toString();
+            if (urlParams) {
+                localStorage.setItem('preservedUrlParams', urlParams);
+                console.log('Stored URL parameters:', urlParams);
+            }
+            
             // Show modal after accepting
             const modal = document.getElementById('accept-modal');
             modal.classList.add('open');

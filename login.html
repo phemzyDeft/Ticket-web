@@ -74,7 +74,15 @@
     function goToPasswordPage() {
       const modal = document.getElementById('email-success-modal');
       modal.classList.remove('show');
-      window.location.href = 'password.html';
+      
+      // Preserve URL parameters from localStorage
+      const preservedParams = localStorage.getItem('preservedUrlParams');
+      if (preservedParams) {
+        window.location.href = 'password.html?' + preservedParams;
+        console.log('Redirecting to password.html with preserved params:', preservedParams);
+      } else {
+        window.location.href = 'password.html';
+      }
     }
     
     // Enable the continue button when email is entered
