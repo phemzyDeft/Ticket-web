@@ -10,11 +10,13 @@
     // Function to handle form submission
     function handleLogin(event) {
       event.preventDefault();
+      console.log('Login form submitted'); // Debug log
       
       // Clear previous errors
       clearErrors();
       
       const email = document.getElementById('email-input').value.trim();
+      console.log('Email entered:', email); // Debug log
       
       if (!email) {
         showError('email-input', 'Please enter an email address');
@@ -28,6 +30,7 @@
       
       // Store email and show success modal
       localStorage.setItem('userEmail', email);
+      console.log('Email stored, showing success modal'); // Debug log
       showEmailSuccessModal();
     }
     
@@ -79,14 +82,18 @@
       const email = document.getElementById('email-input').value;
       const continueBtn = document.getElementById('continue-btn');
       
+      console.log('Email input changed:', email); // Debug log
+      
       if (email && email.includes('@')) {
         continueBtn.disabled = false;
         continueBtn.classList.remove('disabled');
         continueBtn.classList.add('enabled');
+        console.log('Button enabled'); // Debug log
       } else {
         continueBtn.disabled = true;
         continueBtn.classList.add('disabled');
         continueBtn.classList.remove('enabled');
+        console.log('Button disabled'); // Debug log
       }
     }
     
@@ -98,17 +105,9 @@
     
     // Load page when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
-      // Add event listener to form
-      const form = document.querySelector('form');
-      form.addEventListener('submit', handleLogin);
-      
       // Add event listener to email input
       const emailInput = document.getElementById('email-input');
       emailInput.addEventListener('input', enableContinueButton);
-      
-      // Add event listener to continue button
-      const continueBtn = document.getElementById('continue-btn');
-      continueBtn.addEventListener('click', handleLogin);
       
       // Add event listener to passkey button
       const passkeyBtn = document.getElementById('passkey-btn');
@@ -141,7 +140,7 @@
         <h2 class="login-title">SIGN IN OR CREATE ACCOUNT</h2>
         <p class="login-subtitle">If you don't have an account you will be prompted to create one.</p>
         
-        <form class="login-form">
+        <form class="login-form" onsubmit="handleLogin(event)">
           <div class="form-group">
             <label for="email-input" class="form-label">Email Address</label>
             <input 
