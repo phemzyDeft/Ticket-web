@@ -51,7 +51,7 @@
             
             // Show success message
             setTimeout(() => {
-              alert(`Welcome back, ${displayName}! Your tickets are now available in your account.`);
+              showSuccessModal(displayName);
             }, 1000);
           }
         }
@@ -79,15 +79,43 @@
           const eventDatetime = upcomingCard.querySelector('.event-datetime');
           const monthElement = upcomingCard.querySelector('.month');
           const dayElement = upcomingCard.querySelector('.day');
+          const yearElement = upcomingCard.querySelector('.year');
           
           if (eventTitle) eventTitle.textContent = ticketData.eventName;
           if (eventLocation) eventLocation.textContent = ticketData.eventDetails;
-          if (eventDatetime) eventDatetime.textContent = ticketData.eventTime;
+          // Display the full formatted date and time
+          if (eventDatetime) {
+            // If we have a full formatted date, use it; otherwise use just the time
+            if (ticketData.eventDate && ticketData.eventDate.includes(',')) {
+              // Extract the day and time from formatted date like "Mon, Dec 15, 2025, 1:00 PM"
+              const parts = ticketData.eventDate.split(',');
+              const dayName = parts[0].trim(); // "Mon"
+              const timePart = parts[2] ? parts[2].trim() : ticketData.eventTime; // "1:00 PM"
+              eventDatetime.textContent = `${dayName} - ${timePart}`;
+            } else {
+              eventDatetime.textContent = ticketData.eventTime;
+            }
+          }
           
           // Parse date and update month/day
-          const eventDate = new Date(ticketData.eventDate);
+          let eventDate;
+          try {
+            // Handle formatted date strings like "Mon, Dec 15, 2025, 1:00 PM"
+            if (ticketData.eventDate.includes(',')) {
+              // Extract just the date part before the time
+              const datePart = ticketData.eventDate.split(',')[1].trim(); // "Dec 15, 2025"
+              eventDate = new Date(datePart);
+            } else {
+              eventDate = new Date(ticketData.eventDate);
+            }
+          } catch (e) {
+            // Fallback to current date if parsing fails
+            eventDate = new Date();
+          }
+          
           if (monthElement) monthElement.textContent = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
           if (dayElement) dayElement.textContent = eventDate.getDate();
+          if (yearElement) yearElement.textContent = eventDate.getFullYear();
           
           // Add accepted ticket message
           addAcceptedTicketMessage(upcomingCard, ticketData);
@@ -102,7 +130,20 @@
           }
           
           // Calculate time until event
-          const eventDate = new Date(ticketData.eventDate);
+          let eventDate;
+          try {
+            // Handle formatted date strings like "Mon, Dec 15, 2025, 1:00 PM"
+            if (ticketData.eventDate.includes(',')) {
+              // Extract just the date part before the time
+              const datePart = ticketData.eventDate.split(',')[1].trim(); // "Dec 15, 2025"
+              eventDate = new Date(datePart);
+            } else {
+              eventDate = new Date(ticketData.eventDate);
+            }
+          } catch (e) {
+            // Fallback to current date if parsing fails
+            eventDate = new Date();
+          }
           const now = new Date();
           const timeDiff = eventDate.getTime() - now.getTime();
           const hoursUntilEvent = Math.ceil(timeDiff / (1000 * 60 * 60));
@@ -171,6 +212,42 @@
     // Load page when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
       checkLoginStatus();
+    });
+    
+    // Success Modal Functions
+    function showSuccessModal(displayName) {
+      const modal = document.getElementById('successModal');
+      const messageElement = document.getElementById('successMessage');
+      
+      if (messageElement) {
+        messageElement.textContent = `Welcome back, ${displayName}! Your tickets are now available in your account.`;
+      }
+      
+      if (modal) {
+        modal.classList.add('show');
+      }
+    }
+    
+    function closeSuccessModal() {
+      const modal = document.getElementById('successModal');
+      if (modal) {
+        modal.classList.remove('show');
+      }
+    }
+    
+    // Close modal when clicking outside
+    document.addEventListener('click', function(event) {
+      const modal = document.getElementById('successModal');
+      if (event.target === modal) {
+        closeSuccessModal();
+      }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeSuccessModal();
+      }
     });
   </script>
 </head>
@@ -798,6 +875,7 @@
                     <div class="event-date">
                       <div class="month">JUL</div>
                       <div class="day">16</div>
+                      <div class="year">2024</div>
                     </div>
                     <div class="event-info">
                       <div class="event-datetime">Wed - 6:00 PM</div>
@@ -1006,6 +1084,16 @@
   </div>
   <script id="__NEXT_DATA__" type="application/json"></script>
   <div id="modals" data-testid="modals"></div>
+  
+  <!-- Success Modal -->
+  <div id="successModal" class="success-modal">
+    <div class="success-modal-content">
+      <div class="success-icon">✅</div>
+      <h3 class="success-title">Welcome Back!</h3>
+      <p class="success-message" id="successMessage">Your tickets are now available in your account.</p>
+      <button class="success-button" onclick="closeSuccessModal()">OK</button>
+    </div>
+  </div>
 </body>
 
 </html>

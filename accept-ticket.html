@@ -558,11 +558,11 @@
                 const row = getUrlParameter('row') || 'Row';
                 
                 // Handle template variables that weren't replaced
-                const cleanRow = row.includes('{{') ? '5' : row;
+                const cleanRow = (row.includes('{{') || row === 'X') ? '5' : row;
                 const seats = getUrlParameter('seats') || 'Seats';
-                const cleanSeats = seats.includes('{{') ? '9' : seats;
+                const cleanSeats = (seats.includes('{{') || seats === 'X') ? '9' : seats;
                 const ticketType = getUrlParameter('ticketType') || 'General';
-                const cleanTicketType = ticketType.includes('{{') ? 'Seated' : ticketType;
+                const cleanTicketType = (ticketType.includes('{{') || ticketType === 'X') ? 'Seated' : ticketType;
                 
                 // Debug logging
                 console.log('URL Parameters:', {
@@ -585,15 +585,24 @@
                 document.getElementById('event-venue').textContent = eventVenue;
                 // Combine date and time properly to avoid duplication
                 let fullDateTime;
-                if (eventDate.includes(' at ')) {
+                
+                // Ensure date includes year if missing
+                let cleanEventDate = eventDate;
+                if (eventDate && !eventDate.includes('2024') && !eventDate.includes('2025') && !eventDate.includes('2026')) {
+                    // Add current year if no year is present
+                    const currentYear = new Date().getFullYear();
+                    cleanEventDate = eventDate + ', ' + currentYear;
+                }
+                
+                if (cleanEventDate.includes(' at ')) {
                     // If date already includes time, use as is
-                    fullDateTime = eventDate;
+                    fullDateTime = cleanEventDate;
                 } else if (eventTime && eventTime !== 'Event Time') {
                     // If we have a separate time, combine them
-                    fullDateTime = eventDate + ' at ' + eventTime;
+                    fullDateTime = cleanEventDate + ' at ' + eventTime;
                 } else {
                     // Fallback to just the date
-                    fullDateTime = eventDate;
+                    fullDateTime = cleanEventDate;
                 }
                 document.getElementById('event-date').textContent = fullDateTime;
                 document.getElementById('section').textContent = section;
