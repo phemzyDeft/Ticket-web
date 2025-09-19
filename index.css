@@ -4,6 +4,16 @@
   font-style: normal;
   src: url(\/\/uk\.tmconst\.com\/production-10-223-0-11513381\/fonts\/averta-extrabold\.woff2) format('woff2'),
     url(\/\/uk\.tmconst\.com\/production-10-223-0-11513381\/fonts\/averta-extrabold\.woff) format('woff');
+  font-display: swap;
+}
+
+/* Fallback fonts for Averta */
+@font-face {
+  font-weight: 900;
+  font-family: 'Averta';
+  font-style: normal;
+  src: local('Arial Black'), local('Helvetica Neue'), local('Helvetica'), local('sans-serif');
+  font-display: swap;
 }
 
 @font-face {
@@ -28,6 +38,16 @@
   font-style: normal;
   src: url(\/\/uk\.tmconst\.com\/production-10-223-0-11513381\/fonts\/averta-regular\.woff2) format('woff2'),
     url(\/\/uk\.tmconst\.com\/production-10-223-0-11513381\/fonts\/averta-regular\.woff) format('woff');
+  font-display: swap;
+}
+
+/* Fallback fonts for Averta regular */
+@font-face {
+  font-weight: 400;
+  font-family: 'Averta';
+  font-style: normal;
+  src: local('Arial'), local('Helvetica Neue'), local('Helvetica'), local('sans-serif');
+  font-display: swap;
 }
 
 .ckLyyv {

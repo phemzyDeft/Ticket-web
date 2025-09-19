@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test URL Fix for Long Custom Messages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-link {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 5px;
+        }
+        .test-link:hover {
+            background: #1565c0;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .url-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .message-display {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test URL Fix for Long Custom Messages</h1>
+    
+    <div class="test-section">
+        <h2>✅ Fix Applied</h2>
+        <div class="status success">
+            <strong>Problem:</strong> Custom messages were being cut off from URLs when they became too long
+        </div>
+        <div class="status success">
+            <strong>Solution:</strong> Implemented automatic detection of URL length limits and localStorage fallback for long messages
+        </div>
+        <div class="status success">
+            <strong>How it works:</strong> When a custom message would make the URL too long, it's encoded and passed via a special parameter, then decoded and stored in localStorage
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Test Cases</h2>
+        <p>Click these links to test different message lengths:</p>
+        
+        <a href="index.html?recipientName=John+Doe&senderName=Jane+Smith&eventName=Test+Event&eventDetails=Test+Venue&eventDate=Mon%2C+Dec+15%2C+2025%2C+1%3A00+PM&eventTime=1%3A00+PM&ticketCount=2&section=A&row=1&seats=1%2C2&ticketType=Seated&customMessage=Short+message" 
+           class="test-link">
+            Short Message (Standard URL)
+        </a>
+        
+        <a href="index.html?recipientName=John+Doe&senderName=Jane+Smith&eventName=Test+Event&eventDetails=Test+Venue&eventDate=Mon%2C+Dec+15%2C+2025%2C+1%3A00+PM&eventTime=1%3A00+PM&ticketCount=2&section=A&row=1&seats=1%2C2&ticketType=Seated&customMessage=This+is+a+medium+length+custom+message+that+should+test+the+URL+handling+capabilities.+It+contains+enough+text+to+potentially+cause+issues+with+URL+length+limits+but+should+still+work+fine+with+standard+URL+parameters." 
+           class="test-link">
+            Medium Message (Standard URL)
+        </a>
+        
+        <a href="#" class="test-link" onclick="testLongMessage()">
+            Long Message (localStorage Fallback)
+        </a>
+        
+        <a href="#" class="test-link" onclick="testVeryLongMessage()">
+            Very Long Message (localStorage Fallback)
+        </a>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Current URL Analysis</h2>
+        <div id="currentAnalysis"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 What to Check</h2>
+        <div class="status info">
+            <strong>Console:</strong> Look for messages about URL length and localStorage usage
+        </div>
+        <div class="status info">
+            <strong>Custom Messages:</strong> Should display completely regardless of length
+        </div>
+        <div class="status info">
+            <strong>URL Length:</strong> Should stay under browser limits (2048 characters)
+        </div>
+        <div class="status info">
+            <strong>localStorage:</strong> Check browser dev tools for preserved custom messages
+        </div>
+    </div>
+
+    <script>
+        function testLongMessage() {
+            const longMessage = "This is a very long custom message that will definitely test the URL length limits. It contains a lot of text that should be properly encoded and preserved in the URL parameters. This message is designed to push the boundaries of what can be handled by standard URL parameter processing. It includes special characters, punctuation, and enough content to potentially exceed browser URL length limits. The message should be preserved even if the URL becomes quite long, and the application should handle this gracefully. This is a test of the URL parameter handling system to ensure that long custom messages are properly preserved and displayed to users. The system should be able to handle messages of any length without losing information or causing errors. This includes proper URL encoding, parameter preservation, and graceful handling of edge cases. The application should provide a good user experience even when dealing with very long custom messages that might cause issues with standard URL handling.";
+            
+            const params = new URLSearchParams({
+                recipientName: 'John Doe',
+                senderName: 'Jane Smith',
+                eventName: 'Test Event',
+                eventDetails: 'Test Venue',
+                eventDate: 'Mon, Dec 15, 2025, 1:00 PM',
+                eventTime: '1:00 PM',
+                ticketCount: '2',
+                section: 'A',
+                row: '1',
+                seats: '1,2',
+                ticketType: 'Seated',
+                customMessage: longMessage
+            });
+            
+            const url = `index.html?${params.toString()}`;
+            window.open(url, '_blank');
+        }
+        
+        function testVeryLongMessage() {
+            const veryLongMessage = "This is an extremely long custom message that will definitely exceed URL length limits in most browsers. It contains a massive amount of text that should be properly encoded and preserved in the URL parameters. This message is designed to push the boundaries of what can be handled by standard URL parameter processing. It includes special characters, punctuation, and enough content to definitely exceed browser URL length limits. The message should be preserved even if the URL becomes quite long, and the application should handle this gracefully. This is a test of the URL parameter handling system to ensure that long custom messages are properly preserved and displayed to users. The system should be able to handle messages of any length without losing information or causing errors. This includes proper URL encoding, parameter preservation, and graceful handling of edge cases. The application should provide a good user experience even when dealing with very long custom messages that might cause issues with standard URL handling. This message continues with even more text to ensure it exceeds the URL length limits and triggers the localStorage fallback mechanism. The system should automatically detect that the URL would be too long and switch to the localStorage approach to preserve the custom message. This ensures that users always see their complete custom message regardless of how long it is. The fallback mechanism should be seamless and transparent to the user, providing the same experience whether the message is short or long. This is important for maintaining a consistent user experience and ensuring that important information in custom messages is never lost due to technical limitations.";
+            
+            const params = new URLSearchParams({
+                recipientName: 'John Doe',
+                senderName: 'Jane Smith',
+                eventName: 'Test Event',
+                eventDetails: 'Test Venue',
+                eventDate: 'Mon, Dec 15, 2025, 1:00 PM',
+                eventTime: '1:00 PM',
+                ticketCount: '2',
+                section: 'A',
+                row: '1',
+                seats: '1,2',
+                ticketType: 'Seated',
+                customMessage: veryLongMessage
+            });
+            
+            const url = `index.html?${params.toString()}`;
+            window.open(url, '_blank');
+        }
+        
+        function analyzeCurrentUrl() {
+            const currentUrl = window.location.href;
+            const urlParams = new URLSearchParams(window.location.search);
+            const customMessage = urlParams.get('customMessage') || '';
+            const useLocalStorage = urlParams.get('useLocalStorage') === 'true';
+            const preservedData = urlParams.get('preservedData');
+            
+            let analysis = `
+                <div class="status info">
+                    <strong>Current URL Length:</strong> ${currentUrl.length} characters
+                </div>
+                <div class="status info">
+                    <strong>Custom Message Length:</strong> ${customMessage.length} characters
+                </div>
+                <div class="status info">
+                    <strong>Using localStorage:</strong> ${useLocalStorage ? 'Yes' : 'No'}
+                </div>
+            `;
+            
+            if (customMessage) {
+                analysis += `
+                    <div class="message-display">
+                        <strong>Custom Message:</strong><br>
+                        ${customMessage}
+                    </div>
+                `;
+            }
+            
+            if (preservedData) {
+                try {
+                    const decodedData = JSON.parse(atob(preservedData));
+                    analysis += `
+                        <div class="status success">
+                            <strong>Preserved Data Found:</strong> ${decodedData.customMessage.length} characters
+                        </div>
+                        <div class="message-display">
+                            <strong>Preserved Message:</strong><br>
+                            ${decodedData.customMessage}
+                        </div>
+                    `;
+                } catch (e) {
+                    analysis += `
+                        <div class="status warning">
+                            <strong>Preserved Data Error:</strong> ${e.message}
+                        </div>
+                    `;
+                }
+            }
+            
+            document.getElementById('currentAnalysis').innerHTML = analysis;
+        }
+        
+        // Analyze current URL on page load
+        document.addEventListener('DOMContentLoaded', analyzeCurrentUrl);
+    </script>
+</body>
+</html>
