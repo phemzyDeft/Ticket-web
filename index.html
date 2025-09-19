@@ -14,6 +14,50 @@
   <link href="index.css" rel="stylesheet">
   <script src="script.js"></script>
   <script>
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+          const urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get(name);
+        }
+        
+        // Function to display custom message
+        function displayCustomMessage() {
+          // Get the custom message from URL parameters
+          const customMessage = getUrlParameter('customMessage');
+          
+          // If custom message exists, display it
+          if (customMessage) {
+            // Find the "Tickets Accepted Successfully!" element
+            const successElement = document.querySelector('.accepted-ticket-message');
+            
+            if (successElement) {
+              // Create the custom message element
+              const customMessageDiv = document.createElement('div');
+              customMessageDiv.style.cssText = `
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                border-radius: 8px;
+                padding: 15px;
+                margin: 20px 0;
+                color: #856404;
+                font-size: 14px;
+                line-height: 1.4;
+              `;
+              
+              customMessageDiv.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  <span style="font-size: 18px; margin-right: 10px;">ℹ️</span>
+                  <strong style="color: #856404;">Important Notice:</strong>
+                </div>
+                <p style="margin: 0;">${customMessage}</p>
+              `;
+              
+              // Insert the custom message after the success element
+              successElement.parentNode.insertBefore(customMessageDiv, successElement.nextSibling);
+            }
+          }
+        }
+
         // Function to check login status and show success message
         function checkLoginStatus() {
           const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -226,6 +270,7 @@
     // Load page when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
       checkLoginStatus();
+      displayCustomMessage();
     });
     
     // Success Modal Functions
