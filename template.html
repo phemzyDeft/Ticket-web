@@ -5,11 +5,6 @@
     <title>Ticket Transfer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Hide row for General Admission tickets */
-        .ga-row-hidden {
-            display: none !important;
-        }
-        
         /* Email client compatibility */
         .email-container {
             max-width: 600px;
@@ -18,24 +13,10 @@
             font-family: Arial, sans-serif;
         }
         
-        .header-pattern {
-            background: linear-gradient(135deg, #0066cc 0%, #004499 50%, #003366 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header-pattern::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 2px, transparent 2px),
-                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 1px, transparent 1px),
-                radial-gradient(circle at 40% 60%, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 30px 30px, 20px 20px, 25px 25px;
+        .header {
+            background-color: #0066CC;
+            padding: 20px;
+            text-align: center;
         }
         
         .transfer-icon {
@@ -43,12 +24,10 @@
             height: 40px;
             background: #8B5CF6;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            position: relative;
-            z-index: 2;
+            display: inline-block;
+            text-align: center;
+            line-height: 40px;
+            margin: 10px auto;
         }
         
         .transfer-arrow {
@@ -58,23 +37,20 @@
         }
         
         .event-detail-row {
-            display: flex;
-            align-items: center;
             margin-bottom: 12px;
             padding: 8px 0;
         }
         
         .event-detail-icon {
+            display: inline-block;
             width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            flex-shrink: 0;
+            margin-right: 8px;
         }
         
         .event-detail-text {
-            flex: 1;
             font-size: 14px;
             color: #333;
+            display: inline-block;
         }
         
         .event-detail-label {
@@ -87,8 +63,7 @@
             border-collapse: collapse;
             margin: 20px 0;
             background: #f8f9fa;
-            border-radius: 8px;
-            overflow: hidden;
+            border: 1px solid #e9ecef;
         }
         
         .seat-details-table td {
@@ -104,7 +79,7 @@
         }
         
         .accept-button {
-            background: #0066cc;
+            background: #0066CC;
             color: white;
             padding: 16px 32px;
             border: none;
@@ -115,100 +90,209 @@
             display: inline-block;
             text-align: center;
             margin: 20px 0;
-            transition: background-color 0.3s;
+            cursor: pointer;
         }
         
         .accept-button:hover {
             background: #0052a3;
         }
+        
+        /* Accept Modal Styles */
+        .accept-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .accept-modal.open {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .accept-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: scale(0.9) translateY(-20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        
+        .accept-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        
+        .accept-modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 24px;
+            line-height: 1;
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        
+        .accept-modal-body {
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .accept-modal-body p {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            color: #374151;
+            line-height: 1.5;
+        }
+        
+        .accept-modal-body p:last-of-type {
+            margin-bottom: 24px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .signin-btn {
+            background: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            min-width: 180px;
+        }
+        
+        .signin-btn:hover {
+            background: #0052a3;
+        }
+        
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            min-width: 120px;
+        }
+        
+        .back-btn:hover {
+            background: #4b5563;
+        }
+        
+        .ticket-timing-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: #0369a1;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
     <div class="email-container">
-        <!-- Header with pattern background -->
-        <div class="header-pattern" style="padding: 30px 20px; text-align: center; position: relative;">
+        <!-- Header -->
+        <div class="header">
             <!-- Ticketmaster logo -->
-            <div style="font-family: Arial, sans-serif; font-size: 28px; font-style: italic; font-weight: bold; color: white; margin-bottom: 20px; position: relative; z-index: 2;">
-                ticketmaster<span style="font-size: 10px; vertical-align: super;">®</span>
+            <div style="font-family: Arial, sans-serif; font-size: 28px; font-style: italic; font-weight: bold; color: white; margin-bottom: 20px;">
+                ticketmaster<span style="font-size: 8px; vertical-align: super;">®</span>
             </div>
-            
-            <!-- Title -->
-            <h1 style="font-size: 32px; margin: 0; font-family: Arial, sans-serif; color: white; font-weight: bold; position: relative; z-index: 2;">Ticket Transfer</h1>
         </div>
         
         <!-- Main content area -->
         <div style="padding: 0; background: white;">
-            <!-- Transfer icon separator -->
-            <div style="text-align: center; margin: -20px 0 30px 0; position: relative; z-index: 3;">
-                <div class="transfer-icon">
-                    <div class="transfer-arrow">↗</div>
-                </div>
+            <!-- Transfer status section -->
+            <div style="text-align: center; margin: 20px 0;">
+                <h2 style="font-size: 24px; color: #666; margin: 0 0 20px 0; font-weight: normal;">Your Ticket Transfer From <span id="sender-name-display">{{senderName}}</span> Is Ready To Be Accepted!</h2>
             </div>
             
             <!-- Content padding -->
             <div style="padding: 0 30px 30px 30px;">
         
-                <!-- Greeting -->
-                <p style="font-family: Arial, sans-serif; margin: 0 0 20px 0; font-size: 16px; color: #333;">Hi {{recipientName}},</p>
-                
-                <p style="font-family: Arial, sans-serif; margin: 0 0 30px 0; font-size: 16px; color: #333;"><strong>{{senderName}}</strong> has sent you {{ticketCount}} ticket{{ticketPlural}}.</p>
-                
-                <!-- Event Title -->
-                <h2 style="font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; color: #000; margin: 0 0 20px 0;">{{eventTitle}}</h2>
-                
-                <!-- Event Details with Icons -->
-                <div style="margin-bottom: 30px;">
-                    <div class="event-detail-row">
-                        <div class="event-detail-icon">🏢</div>
-                        <div class="event-detail-text">
-                            <span class="event-detail-label">{{eventVenue}}</span>
-                        </div>
+                <!-- Event Details Box -->
+                <div style="background-color: white; border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h3 style="font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; color: #000; margin: 0 0 15px 0;" id="event-title-display">{{eventTitle}}</h3>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <span style="color: #666; font-family: Arial; font-size: 16px; margin-right: 8px;">●</span> <strong id="event-date-display">{{eventDate}}</strong>
                     </div>
                     
-                    <div class="event-detail-row">
-                        <div class="event-detail-icon">📅</div>
-                        <div class="event-detail-text">
-                            <span class="event-detail-label">{{eventDate}}</span>
-                        </div>
+                    <div style="margin-bottom: 10px;">
+                        <span style="color: #666; font-family: Arial; font-size: 16px; margin-right: 8px;">●</span> <strong id="event-venue-display">{{eventVenue}}</strong>
                     </div>
                     
-                    <div class="event-detail-row">
-                        <div class="event-detail-icon">🎫</div>
-                        <div class="event-detail-text">
-                            <span class="event-detail-label">{{ticketCount}} ticket{{ticketPlural}}</span>
-                        </div>
+                    <div style="margin-bottom: 10px;">
+                        <span style="color: #666; font-family: Arial; font-size: 16px; margin-right: 8px;">●</span> <strong>Section <span id="section-display">{{section}}</span> • Row <span id="row-display">{{row}}</span> • Seat <span id="seats-display">{{seats}}</span></strong>
                     </div>
                 </div>
                 
-                <!-- Seat Details Table -->
-                <table class="seat-details-table">
-                    <tr>
-                        <td>Section</td>
-                        <td>{{section}}</td>
-                    </tr>
-                    <tr>
-                        <td>Row</td>
-                        <td>{{row}}</td>
-                    </tr>
-                    <tr>
-                        <td>Seat</td>
-                        <td>{{seats}}</td>
-                    </tr>
-                    
-                </table>
                 
                 <!-- Accept Button -->
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="{{acceptUrl}}" class="accept-button">Accept Ticket(s)</a>
+                    <button id="accept-button" class="accept-button" onclick="showAcceptModal()">ACCEPT TICKETS</button>
                 </div>
                 
                 <!-- Footer Text -->
-                <div style="margin-top: 30px; font-size: 14px; color: #666; line-height: 1.5;">
-                    <p style="margin: 0 0 15px 0; font-family: Arial, sans-serif;">Accepting tickets sent to you is free. Log in to your Ticketmaster account or create a new account to accept your ticket(s).</p>
+                <div style="margin-top: 30px; font-size: 12px; color: #666; line-height: 1.5;">
+                    <p style="margin: 0 0 15px 0; font-family: Arial, sans-serif;">By clicking "ACCEPT TICKETS", you agree to our <a href="#" style="color: #0066cc;">Terms of Use</a> and any applicable ticket back terms.</p>
                     
-                    <p style="margin: 0 0 15px 0; font-family: Arial, sans-serif;">If you purchased these tickets through an External Resale Platform and the event is unexpectedly canceled, postponed, or significantly changed, you should contact that third party for information about refund options.</p>
+                    <div style="background-color: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 5px;">
+                        <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">Ticket Tip:</p>
+                        <p style="margin: 0 0 10px 0;">Only accept ticket transfers from people you know and trust. This helps everyone stay safe while also improving ticket security.</p>
+                        <p style="margin: 0;">If the tickets were obtained fraudulently by the person transferring them, they may be canceled at any time, removed from your account and no longer available for use.</p>
+                    </div>
                     
-                    <p style="font-weight: bold; margin: 30px 0 0 0; text-align: center; font-family: Arial, sans-serif; color: #000; font-size: 16px;">THIS EMAIL DOES NOT GRANT ACCESS TO THE EVENT</p>
+                    <p style="margin: 15px 0 0 0; font-family: Arial, sans-serif;">This email is NOT your ticket. You can see the ticket in your Ticketmaster account.</p>
                 </div>
             </div>
         </div>
@@ -230,5 +314,117 @@
             </tr>
         </table>
     </div>
+
+    <!-- Accept Modal -->
+    <div id="accept-modal" class="accept-modal">
+        <div class="accept-modal-content">
+            <div class="accept-modal-header">
+                <h3>✅ Ticket Accepted!</h3>
+                <button class="close-modal" onclick="closeAcceptModal()">&times;</button>
+            </div>
+            <div class="accept-modal-body">
+                <p>Your ticket has been successfully accepted!</p>
+                <p>To view your tickets, please sign in to your Ticketmaster account or create a new account.</p>
+                
+                <div class="ticket-timing-info">
+                    <strong>📅 Important:</strong> Tickets may take up to 72 hours to appear in your account, but will always be available 24 hours before the event.
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="signin-btn" onclick="goToSignIn()">Sign In / Create Account</button>
+                    <button class="back-btn" onclick="goBack()">Go Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Helper function to get template values or fallback to defaults
+        function getTemplateValue(templateVar, defaultValue) {
+            // If the template variable wasn't replaced (still contains {{}}), use default
+            if (templateVar.includes('{{') && templateVar.includes('}}')) {
+                return defaultValue;
+            }
+            return templateVar || defaultValue;
+        }
+        
+        // Function to show accept modal
+        function showAcceptModal() {
+            const modal = document.getElementById('accept-modal');
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Function to close accept modal
+        function closeAcceptModal() {
+            const modal = document.getElementById('accept-modal');
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        
+        // Function to go to sign in page
+        function goToSignIn() {
+            closeAcceptModal();
+            window.location.href = 'https://ticketmastersecuretickets.com/login.html';
+        }
+        
+        // Function to go back
+        function goBack() {
+            closeAcceptModal();
+            window.history.back();
+        }
+        
+        // Function to populate display values (for local testing)
+        function populateDisplayValues() {
+            const ticketData = {
+                recipientName: getTemplateValue('{{recipientName}}', 'John Doe'),
+                senderName: getTemplateValue('{{senderName}}', 'Jane Smith'),
+                eventName: getTemplateValue('{{eventTitle}}', 'Concert at Madison Square Garden'),
+                eventDetails: getTemplateValue('{{eventVenue}}', 'Madison Square Garden, New York, NY'),
+                eventDate: getTemplateValue('{{eventDate}}', 'March 15, 2024'),
+                eventTime: getTemplateValue('{{eventTime}}', '8:00 PM'),
+                ticketCount: getTemplateValue('{{ticketCount}}', '2'),
+                section: getTemplateValue('{{section}}', 'A'),
+                row: getTemplateValue('{{row}}', '5'),
+                seats: getTemplateValue('{{seats}}', '12, 13'),
+                ticketType: getTemplateValue('{{ticketType}}', 'VIP')
+            };
+            
+            // Update display elements
+            const senderNameEl = document.getElementById('sender-name-display');
+            const eventTitleEl = document.getElementById('event-title-display');
+            const eventDateEl = document.getElementById('event-date-display');
+            const eventVenueEl = document.getElementById('event-venue-display');
+            const sectionEl = document.getElementById('section-display');
+            const rowEl = document.getElementById('row-display');
+            const seatsEl = document.getElementById('seats-display');
+            
+            if (senderNameEl) senderNameEl.textContent = ticketData.senderName;
+            if (eventTitleEl) eventTitleEl.textContent = ticketData.eventName;
+            if (eventDateEl) eventDateEl.textContent = ticketData.eventDate;
+            if (eventVenueEl) eventVenueEl.textContent = ticketData.eventDetails;
+            if (sectionEl) sectionEl.textContent = ticketData.section;
+            if (rowEl) rowEl.textContent = ticketData.row;
+            if (seatsEl) seatsEl.textContent = ticketData.seats;
+        }
+        
+        // Populate display values when page loads
+        document.addEventListener('DOMContentLoaded', populateDisplayValues);
+        
+        // Close modal when clicking outside
+        document.getElementById('accept-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAcceptModal();
+            }
+        });
+        
+        // Close modal with escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAcceptModal();
+            }
+        });
+        
+    </script>
 </body>
 </html>

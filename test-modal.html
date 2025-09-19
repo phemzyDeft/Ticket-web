@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Modal Functionality</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { max-width: 600px; margin: 0 auto; }
+        .test-button { 
+            background: #0066cc; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            margin: 10px 0;
+        }
+        .test-button:hover { background: #0052a3; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Test Modal Functionality</h1>
+        <p>This tests the modal functionality from template.html</p>
+        
+        <button class="test-button" onclick="showAcceptModal()">Test Accept Modal</button>
+    </div>
+
+    <!-- Accept Modal -->
+    <div id="accept-modal" class="accept-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 10000;">
+        <div class="accept-modal-content" style="background: white; border-radius: 12px; width: 90%; max-width: 500px; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+            <div class="accept-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+                <h3 style="margin: 0; font-size: 20px; font-weight: 600; color: #111827;">✅ Ticket Accepted!</h3>
+                <button class="close-modal" onclick="closeAcceptModal()" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 6px; color: #6b7280; font-size: 24px;">&times;</button>
+            </div>
+            <div class="accept-modal-body" style="padding: 24px; text-align: center;">
+                <p style="margin: 0 0 16px 0; font-size: 16px; color: #374151; line-height: 1.5;">Your ticket has been successfully accepted!</p>
+                <p style="margin: 0 0 16px 0; font-size: 16px; color: #374151; line-height: 1.5;">To view your tickets, please sign in to your Ticketmaster account or create a new account.</p>
+                
+                <div class="ticket-timing-info" style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 14px; color: #0369a1; line-height: 1.5;">
+                    <strong>📅 Important:</strong> Tickets may take up to 72 hours to appear in your account, but will always be available 24 hours before the event.
+                </div>
+                
+                <div class="modal-buttons" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <button class="signin-btn" onclick="goToSignIn()" style="background: #0066cc; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; min-width: 180px;">Sign In / Create Account</button>
+                    <button class="back-btn" onclick="goBack()" style="background: #6b7280; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; min-width: 120px;">Go Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showAcceptModal() {
+            const modal = document.getElementById('accept-modal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeAcceptModal() {
+            const modal = document.getElementById('accept-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        
+        function goToSignIn() {
+            closeAcceptModal();
+            alert('Would redirect to: https://ticketmastersecuretickets.com/login.html');
+        }
+        
+        function goBack() {
+            closeAcceptModal();
+            alert('Would go back to previous page');
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('accept-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAcceptModal();
+            }
+        });
+        
+        // Close modal with escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAcceptModal();
+            }
+        });
+    </script>
+</body>
+</html>

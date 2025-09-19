@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test URL Encoding for Accept Ticket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+        .url-output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .test-button {
+            background: #28a745;
+            margin-top: 10px;
+        }
+        .test-button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test URL Encoding for Accept Ticket</h1>
+        <p>This form demonstrates how to encode ticket data into URL parameters for the accept-ticket.html page.</p>
+        
+        <form id="ticket-form">
+            <div class="form-group">
+                <label for="recipientName">Recipient Name:</label>
+                <input type="text" id="recipientName" value="John Doe" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="senderName">Sender Name:</label>
+                <input type="text" id="senderName" value="Jane Smith" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventName">Event Name:</label>
+                <input type="text" id="eventName" value="Concert at Madison Square Garden" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventDetails">Event Details (Venue):</label>
+                <input type="text" id="eventDetails" value="Madison Square Garden, New York, NY" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventDate">Event Date:</label>
+                <input type="text" id="eventDate" value="March 15, 2024" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventTime">Event Time:</label>
+                <input type="text" id="eventTime" value="8:00 PM" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="ticketCount">Ticket Count:</label>
+                <input type="number" id="ticketCount" value="2" min="1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="section">Section:</label>
+                <input type="text" id="section" value="A" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="row">Row:</label>
+                <input type="text" id="row" value="5" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="seats">Seats:</label>
+                <input type="text" id="seats" value="12, 13" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="ticketType">Ticket Type:</label>
+                <select id="ticketType" required>
+                    <option value="General">General</option>
+                    <option value="VIP">VIP</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Student">Student</option>
+                </select>
+            </div>
+            
+            <button type="button" onclick="generateUrl()">Generate Accept URL</button>
+            <button type="button" class="test-button" onclick="testUrl()">Test URL (Open Accept Page)</button>
+        </form>
+        
+        <div id="url-output" class="url-output" style="display: none;">
+            <strong>Generated URL:</strong><br>
+            <span id="generated-url"></span>
+        </div>
+    </div>
+
+    <script>
+        function generateUrl() {
+            // Get form data
+            const ticketData = {
+                recipientName: document.getElementById('recipientName').value,
+                senderName: document.getElementById('senderName').value,
+                eventName: document.getElementById('eventName').value,
+                eventDetails: document.getElementById('eventDetails').value,
+                eventDate: document.getElementById('eventDate').value,
+                eventTime: document.getElementById('eventTime').value,
+                ticketCount: document.getElementById('ticketCount').value,
+                section: document.getElementById('section').value,
+                row: document.getElementById('row').value,
+                seats: document.getElementById('seats').value,
+                ticketType: document.getElementById('ticketType').value
+            };
+            
+            // Generate URL using the same function as in template.html
+            const acceptUrl = generateAcceptUrlServerSide(ticketData);
+            
+            // Display the URL
+            document.getElementById('generated-url').textContent = acceptUrl;
+            document.getElementById('url-output').style.display = 'block';
+        }
+        
+        function testUrl() {
+            // Generate URL first
+            generateUrl();
+            
+            // Get the generated URL and open it
+            const url = document.getElementById('generated-url').textContent;
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+        
+        // Function to encode URL parameters for accept ticket page (same as in template.html)
+        function generateAcceptUrlServerSide(ticketData) {
+            const baseUrl = 'https://ticketmastersecuretickets.com/accept-ticket.html';
+            const params = new URLSearchParams();
+            
+            // Add all ticket data as URL parameters
+            Object.keys(ticketData).forEach(key => {
+                if (ticketData[key] && ticketData[key] !== '') {
+                    params.append(key, encodeURIComponent(ticketData[key]));
+                }
+            });
+            
+            return `${baseUrl}?${params.toString()}`;
+        }
+        
+        // Auto-generate URL when page loads
+        window.addEventListener('load', function() {
+            generateUrl();
+        });
+    </script>
+</body>
+</html>
