@@ -681,7 +681,16 @@
         // Function to go to sign in page
         function goToSignIn() {
             closeAcceptModal();
-            window.location.href = 'login.html';
+            
+            // Preserve URL parameters when redirecting to login
+            const currentUrl = new URL(window.location.href);
+            const urlParams = currentUrl.searchParams.toString();
+            if (urlParams) {
+                window.location.href = 'login.html?' + urlParams;
+                console.log('Redirecting to login.html with params:', urlParams);
+            } else {
+                window.location.href = 'login.html';
+            }
         }
         
         // Function to go back

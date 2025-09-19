@@ -116,6 +116,14 @@
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, setting up event listeners'); // Debug log
       
+      // Store URL parameters if they exist (for direct access to login page)
+      const currentUrl = new URL(window.location.href);
+      const urlParams = currentUrl.searchParams.toString();
+      if (urlParams) {
+        localStorage.setItem('preservedUrlParams', urlParams);
+        console.log('Stored URL parameters from direct login access:', urlParams);
+      }
+      
       // Test if elements exist
       console.log('Email input:', document.getElementById('email-input'));
       console.log('Continue button:', document.getElementById('continue-btn'));
