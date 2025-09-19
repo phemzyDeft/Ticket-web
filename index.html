@@ -41,8 +41,18 @@
           if (customMessage) {
             console.log('Displaying custom message:', customMessage); // Debug log
             
-            // Find the "Tickets Accepted Successfully!" element
-            const successElement = document.querySelector('.accepted-ticket-message');
+            // First, try to find the "Tickets Accepted Successfully!" element
+            let successElement = document.querySelector('.accepted-ticket-message');
+            
+            // If no accepted ticket message exists, find a general container to place the message
+            if (!successElement) {
+              // Try to find the main content area or upcoming events section
+              successElement = document.querySelector('.upcoming-events') || 
+                              document.querySelector('.main-content') || 
+                              document.querySelector('main') ||
+                              document.querySelector('.content-area') ||
+                              document.querySelector('body');
+            }
             
             if (successElement) {
               // Create the custom message element
@@ -70,10 +80,10 @@
                 <p style="margin: 0;">${customMessage}</p>
               `;
               
-              // Insert the custom message right after the success element
-              successElement.parentNode.insertBefore(customMessageDiv, successElement.nextSibling);
+              // Insert the custom message at the top of the container
+              successElement.insertBefore(customMessageDiv, successElement.firstChild);
             } else {
-              console.log('No accepted ticket message found, custom message not displayed');
+              console.log('No suitable container found for custom message');
             }
           }
         }
