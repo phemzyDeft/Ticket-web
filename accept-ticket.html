@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Accept your ticket transfer from Ticketmaster">
     <title>Accept Ticket - Ticketmaster</title>
     <link href="index.css" rel="stylesheet">
     <style>
@@ -544,6 +545,14 @@
                 <p>Your ticket has been successfully accepted!</p>
                 <p>To view your tickets, please sign in to your Ticketmaster account or create a new account.</p>
                 
+                <!-- Custom Message in Modal -->
+                <div id="modal-custom-message" class="custom-message" style="display: none; margin: 16px 0;">
+                    <div class="custom-message-content">
+                        <p><strong>Message from sender:</strong></p>
+                        <p id="modal-custom-message-text"></p>
+                    </div>
+                </div>
+                
                 <div class="ticket-timing-info">
                     <strong>📅 Important:</strong> Tickets may take up to 72 hours to appear in your account, but will always be available 24 hours before the event.
                 </div>
@@ -580,7 +589,23 @@
                 const ticketCount = getUrlParameter('ticketCount') || '1';
                 const section = getUrlParameter('section') || 'Section';
                 const row = getUrlParameter('row') || 'Row';
-                const customMessage = getUrlParameter('customMessage') || '';
+                let customMessage = getUrlParameter('customMessage') || '';
+                
+                // Check for localStorage fallback for long custom messages
+                const useLocalStorage = getUrlParameter('useLocalStorage') === 'true';
+                const preservedData = getUrlParameter('preservedData');
+                
+                if (useLocalStorage && preservedData) {
+                    try {
+                        const decodedData = JSON.parse(atob(preservedData));
+                        if (decodedData.customMessage) {
+                            customMessage = decodedData.customMessage;
+                            console.log('Using custom message from localStorage fallback:', customMessage);
+                        }
+                    } catch (e) {
+                        console.warn('Failed to decode preserved custom message data:', e);
+                    }
+                }
                 
                 // Handle template variables that weren't replaced
                 const cleanRow = (row.includes('{{') || row === 'X') ? '5' : row;
@@ -589,11 +614,21 @@
                 const ticketType = getUrlParameter('ticketType') || 'General';
                 const cleanTicketType = (ticketType.includes('{{') || ticketType === 'X') ? 'Seated' : ticketType;
                 
-                // Debug logging
+                // Enhanced debug logging
+                console.log('=== TICKET ACCEPT DEBUG ===');
                 console.log('URL Parameters:', {
                     recipientName, senderName, eventTitle, eventVenue, 
-                    eventDate, eventTime, ticketCount, section, row: cleanRow, seats: cleanSeats, ticketType: cleanTicketType, customMessage
+                    eventDate, eventTime, ticketCount, section, row: cleanRow, seats: cleanSeats, ticketType: cleanTicketType
                 });
+                console.log('Custom Message Details:', {
+                    customMessage: customMessage,
+                    messageLength: customMessage ? customMessage.length : 0,
+                    useLocalStorage: useLocalStorage,
+                    hasPreservedData: !!preservedData,
+                    sanitized: customMessage ? customMessage.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '').replace(/javascript:/gi, '').replace(/on\w+\s*=/gi, '').trim() : ''
+                });
+                console.log('Full URL:', window.location.href);
+                console.log('========================');
                 
                 // Check if we have minimum required data
                 if (!eventTitle || eventTitle === 'Event Title') {
@@ -609,10 +644,22 @@
                 document.getElementById('event-title').textContent = eventTitle;
                 document.getElementById('event-venue').textContent = eventVenue;
                 
-                // Display custom message if it exists
+                // Sanitize and display custom message if it exists
                 if (customMessage && customMessage.trim() !== '') {
-                    document.getElementById('custom-message-text').textContent = customMessage;
-                    document.getElementById('custom-message-container').style.display = 'block';
+                    // Basic sanitization - remove potentially dangerous content
+                    const sanitizedMessage = customMessage
+                        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+                        .replace(/javascript:/gi, '') // Remove javascript: protocols
+                        .replace(/on\w+\s*=/gi, '') // Remove event handlers
+                        .trim();
+                    
+                    if (sanitizedMessage.length > 0) {
+                        document.getElementById('custom-message-text').textContent = sanitizedMessage;
+                        document.getElementById('custom-message-container').style.display = 'block';
+                        console.log('Displaying custom message:', sanitizedMessage);
+                    } else {
+                        console.warn('Custom message was sanitized and is now empty');
+                    }
                 }
                 // Combine date and time properly to avoid duplication
                 let fullDateTime;
@@ -641,8 +688,16 @@
                 document.getElementById('seats').textContent = cleanSeats;
                 document.getElementById('ticket-type').textContent = cleanTicketType;
                 
-                // Update page title
+                // Update page title and meta description
                 document.title = `${eventTitle} - Accept Ticket`;
+                
+                // Update meta description if custom message exists
+                if (customMessage && customMessage.trim() !== '') {
+                    const metaDescription = document.querySelector('meta[name="description"]');
+                    if (metaDescription) {
+                        metaDescription.setAttribute('content', `Accept ticket transfer for ${eventTitle}. Message from sender: ${customMessage.substring(0, 100)}${customMessage.length > 100 ? '...' : ''}`);
+                    }
+                }
                 
                 // Hide loading, show content
                 loading.style.display = 'none';
@@ -692,6 +747,14 @@
                 console.log('Stored URL parameters:', urlParams);
             }
             
+            // Show custom message in modal if it exists
+            if (customMessage && customMessage.trim() !== '') {
+                const modalCustomMessage = document.getElementById('modal-custom-message');
+                const modalCustomMessageText = document.getElementById('modal-custom-message-text');
+                modalCustomMessageText.textContent = customMessage;
+                modalCustomMessage.style.display = 'block';
+            }
+            
             // Show modal after accepting
             const modal = document.getElementById('accept-modal');
             modal.classList.add('open');
@@ -700,7 +763,28 @@
         
         // Function to decline ticket
         function declineTicket() {
-            if (confirm('Are you sure you want to decline this ticket?')) {
+            const customMessage = getUrlParameter('customMessage') || '';
+            const senderName = document.getElementById('sender-name').textContent;
+            
+            let declineMessage = `Are you sure you want to decline this ticket from ${senderName}?`;
+            if (customMessage && customMessage.trim() !== '') {
+                declineMessage += `\n\nThey sent you this message: "${customMessage}"`;
+            }
+            
+            if (confirm(declineMessage)) {
+                // Store decline data in localStorage
+                const declineData = {
+                    eventName: document.getElementById('event-title').textContent,
+                    recipientName: document.getElementById('recipient-name').textContent,
+                    senderName: senderName,
+                    customMessage: customMessage,
+                    declinedAt: new Date().toISOString(),
+                    status: 'declined'
+                };
+                
+                localStorage.setItem('declinedTicket', JSON.stringify(declineData));
+                localStorage.setItem('hasDeclinedTicket', 'true');
+                
                 alert('Ticket declined. The sender will be notified.');
                 // Here you can add logic to process the ticket decline
             }
@@ -711,6 +795,10 @@
             const modal = document.getElementById('accept-modal');
             modal.classList.remove('open');
             document.body.style.overflow = '';
+            
+            // Reset modal custom message
+            const modalCustomMessage = document.getElementById('modal-custom-message');
+            modalCustomMessage.style.display = 'none';
         }
         
         // Function to go to sign in page
