@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Accept Ticket URL</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .test-container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button { 
+            background: #0066cc; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .test-button:hover {
+            background: #0052a3;
+        }
+        .url-output { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin: 20px 0; 
+            word-break: break-all; 
+            font-family: monospace; 
+            border: 1px solid #e9ecef;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test Accept Ticket Page</h1>
+        <p>Click the buttons below to test different scenarios for the accept-ticket page.</p>
+        
+        <div class="test-section">
+            <h3>Test 1: Normal Ticket Transfer</h3>
+            <p>Tests with proper data - should show clean values</p>
+            <button class="test-button" onclick="testNormalTicket()">Test Normal Ticket</button>
+            <div id="normal-url" class="url-output" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Test 2: Template Variables (Fixed)</h3>
+            <p>Tests with template variables that weren't replaced - should show fallback values</p>
+            <button class="test-button" onclick="testTemplateVariables()">Test Template Variables</button>
+            <div id="template-url" class="url-output" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Test 3: Ariana Grande Concert</h3>
+            <p>Tests with the specific concert mentioned in your image</p>
+            <button class="test-button" onclick="testArianaConcert()">Test Ariana Grande Concert</button>
+            <div id="ariana-url" class="url-output" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Test 4: Multiple Tickets</h3>
+            <p>Tests with multiple tickets to verify plural handling</p>
+            <button class="test-button" onclick="testMultipleTickets()">Test Multiple Tickets</button>
+            <div id="multiple-url" class="url-output" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function generateTestUrl(data) {
+            const baseUrl = 'http://localhost:8000/accept-ticket.html';
+            const params = new URLSearchParams();
+            
+            Object.keys(data).forEach(key => {
+                if (data[key] && data[key] !== '') {
+                    params.append(key, encodeURIComponent(data[key]));
+                }
+            });
+            
+            return `${baseUrl}?${params.toString()}`;
+        }
+        
+        function testNormalTicket() {
+            const data = {
+                recipientName: 'Test User',
+                senderName: 'Tomiwa Lawal',
+                eventName: 'Ariana Grande - The Eternal Sunshine Tour',
+                eventDetails: 'United Center',
+                eventDate: 'Wed, Aug 5',
+                eventTime: '8:00 PM',
+                ticketCount: '1',
+                section: '416',
+                row: '5',
+                seats: '9',
+                ticketType: 'Seated'
+            };
+            
+            const url = generateTestUrl(data);
+            document.getElementById('normal-url').innerHTML = `
+                <strong>Generated URL:</strong><br>
+                <a href="${url}" target="_blank" style="color: #0066cc;">${url}</a>
+            `;
+            document.getElementById('normal-url').style.display = 'block';
+        }
+        
+        function testTemplateVariables() {
+            const data = {
+                recipientName: 'Test User',
+                senderName: 'Tomiwa Lawal',
+                eventName: 'Ariana Grande - The Eternal Sunshine Tour',
+                eventDetails: 'United Center',
+                eventDate: 'Wed, Aug 5',
+                eventTime: '8:00 PM',
+                ticketCount: '1',
+                section: '416',
+                row: '{{displayRow}}',  // This should be fixed by our code
+                seats: '{{seatNumber}}',  // This should be fixed by our code
+                ticketType: '{{ticketType}}'  // This should be fixed by our code
+            };
+            
+            const url = generateTestUrl(data);
+            document.getElementById('template-url').innerHTML = `
+                <strong>Generated URL (with template variables):</strong><br>
+                <a href="${url}" target="_blank" style="color: #0066cc;">${url}</a><br><br>
+                <strong>Expected behavior:</strong> Should show fallback values instead of template variables
+            `;
+            document.getElementById('template-url').style.display = 'block';
+        }
+        
+        function testArianaConcert() {
+            const data = {
+                recipientName: 'Test User',
+                senderName: 'Tomiwa Lawal',
+                eventName: 'Ariana Grande - The Eternal Sunshine Tour',
+                eventDetails: 'United Center',
+                eventDate: 'Wed, Aug 5',
+                eventTime: '8:00 PM',
+                ticketCount: '1',
+                section: '416',
+                row: '5',
+                seats: '9',
+                ticketType: 'Seated'
+            };
+            
+            const url = generateTestUrl(data);
+            document.getElementById('ariana-url').innerHTML = `
+                <strong>Generated URL (Ariana Grande Concert):</strong><br>
+                <a href="${url}" target="_blank" style="color: #0066cc;">${url}</a><br><br>
+                <strong>This matches the concert from your image!</strong>
+            `;
+            document.getElementById('ariana-url').style.display = 'block';
+        }
+        
+        function testMultipleTickets() {
+            const data = {
+                recipientName: 'John Doe',
+                senderName: 'Jane Smith',
+                eventName: 'Concert at Madison Square Garden',
+                eventDetails: 'Madison Square Garden, New York, NY',
+                eventDate: 'March 15, 2024',
+                eventTime: '7:30 PM',
+                ticketCount: '3',
+                section: 'A',
+                row: '10',
+                seats: '12, 13, 14',
+                ticketType: 'VIP'
+            };
+            
+            const url = generateTestUrl(data);
+            document.getElementById('multiple-url').innerHTML = `
+                <strong>Generated URL (Multiple Tickets):</strong><br>
+                <a href="${url}" target="_blank" style="color: #0066cc;">${url}</a><br><br>
+                <strong>Expected behavior:</strong> Should show "3 tickets" and handle plural correctly
+            `;
+            document.getElementById('multiple-url').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

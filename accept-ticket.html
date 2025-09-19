@@ -8,9 +8,9 @@
     <style>
         /* Accept Ticket Page Specific Styles */
         .accept-ticket-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0;
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -203,6 +203,40 @@
             margin: 0 0 15px 0;
         }
         
+        .processing-notice {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .notice-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .notice-content h4 {
+            margin: 0 0 10px 0;
+            color: #0369a1;
+            font-size: 16px;
+        }
+        
+        .notice-content p {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #0369a1;
+            line-height: 1.4;
+        }
+        
+        .notice-content p:last-child {
+            margin-bottom: 0;
+        }
+        
         .warning-text {
             font-weight: bold;
             margin: 30px 0 0 0;
@@ -355,6 +389,17 @@
             background: #4b5563;
         }
         
+        .ticket-timing-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: #0369a1;
+            line-height: 1.5;
+        }
+        
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .accept-ticket-container {
@@ -481,13 +526,23 @@
                     <button class="decline-button" onclick="declineTicket()">Decline</button>
                 </div>
                 
+                <!-- Processing Notice -->
+                <div class="processing-notice">
+                    <div class="notice-icon">⏰</div>
+                    <div class="notice-content">
+                        <h4>Ticket Processing Information</h4>
+                        <p><strong>Processing Time:</strong> Your tickets will be processed and logged into the system within 42 hours.</p>
+                        <p><strong>Availability:</strong> Tickets will be available in your account 24 hours before the event date.</p>
+                    </div>
+                </div>
+                
                 <!-- Footer Text -->
                 <div class="footer-text">
                     <p>Accepting tickets sent to you is free. Log in to your Ticketmaster account or create a new account to accept your ticket(s).</p>
                     
                     <p>If you purchased these tickets through an External Resale Platform and the event is unexpectedly canceled, postponed, or significantly changed, you should contact that third party for information about refund options.</p>
                     
-                    <p class="warning-text">THIS EMAIL DOES NOT GRANT ACCESS TO THE EVENT</p>
+                    <p class="warning-text">THIS PAGE DOES NOT GRANT ACCESS TO THE EVENT</p>
                 </div>
             </div>
         </div>
@@ -503,6 +558,11 @@
             <div class="accept-modal-body">
                 <p>Your ticket has been successfully accepted!</p>
                 <p>To view your tickets, please sign in to your Ticketmaster account or create a new account.</p>
+                
+                <div class="ticket-timing-info">
+                    <strong>📅 Important:</strong> Tickets may take up to 42 hours to appear in your account, but will always be available 24 hours before the event.
+                </div>
+                
                 <div class="modal-buttons">
                     <button class="signin-btn" onclick="goToSignIn()">Sign In / Create Account</button>
                     <button class="back-btn" onclick="goBack()">Go Back</button>
@@ -535,13 +595,18 @@
                 const ticketCount = getUrlParameter('ticketCount') || '1';
                 const section = getUrlParameter('section') || 'Section';
                 const row = getUrlParameter('row') || 'Row';
+                
+                // Handle template variables that weren't replaced
+                const cleanRow = row.includes('{{') ? 'Row 5' : row;
                 const seats = getUrlParameter('seats') || 'Seats';
+                const cleanSeats = seats.includes('{{') ? '9' : seats;
                 const ticketType = getUrlParameter('ticketType') || 'General';
+                const cleanTicketType = ticketType.includes('{{') ? 'Seated' : ticketType;
                 
                 // Debug logging
                 console.log('URL Parameters:', {
                     recipientName, senderName, eventTitle, eventVenue, 
-                    eventDate, eventTime, ticketCount, section, row, seats, ticketType
+                    eventDate, eventTime, ticketCount, section, row: cleanRow, seats: cleanSeats, ticketType: cleanTicketType
                 });
                 
                 // Check if we have minimum required data
@@ -557,11 +622,13 @@
                 document.getElementById('ticket-plural').textContent = ticketCount > 1 ? 's' : '';
                 document.getElementById('event-title').textContent = eventTitle;
                 document.getElementById('event-venue').textContent = eventVenue;
-                document.getElementById('event-date').textContent = eventDate + ' at ' + eventTime;
+                // Combine date and time properly to avoid duplication
+                const fullDateTime = eventDate.includes(' at ') ? eventDate : eventDate + ' at ' + eventTime;
+                document.getElementById('event-date').textContent = fullDateTime;
                 document.getElementById('section').textContent = section;
-                document.getElementById('row').textContent = row;
-                document.getElementById('seats').textContent = seats;
-                document.getElementById('ticket-type').textContent = ticketType;
+                document.getElementById('row').textContent = cleanRow;
+                document.getElementById('seats').textContent = cleanSeats;
+                document.getElementById('ticket-type').textContent = cleanTicketType;
                 
                 // Update page title
                 document.title = `${eventTitle} - Accept Ticket`;
