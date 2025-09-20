@@ -545,13 +545,6 @@
                 <p>Your ticket has been successfully accepted!</p>
                 <p>To view your tickets, please sign in to your Ticketmaster account or create a new account.</p>
                 
-                <!-- Custom Message in Modal -->
-                <div id="modal-custom-message" class="custom-message" style="display: none; margin: 16px 0;">
-                    <div class="custom-message-content">
-                        <p><strong>Message from sender:</strong></p>
-                        <p id="modal-custom-message-text"></p>
-                    </div>
-                </div>
                 
                 <div class="ticket-timing-info">
                     <strong>📅 Important:</strong> Tickets may take up to 72 hours to appear in your account, but will always be available 24 hours before the event.
@@ -747,13 +740,6 @@
                 console.log('Stored URL parameters:', urlParams);
             }
             
-            // Show custom message in modal if it exists
-            if (customMessage && customMessage.trim() !== '') {
-                const modalCustomMessage = document.getElementById('modal-custom-message');
-                const modalCustomMessageText = document.getElementById('modal-custom-message-text');
-                modalCustomMessageText.textContent = customMessage;
-                modalCustomMessage.style.display = 'block';
-            }
             
             // Show modal after accepting
             const modal = document.getElementById('accept-modal');
@@ -796,9 +782,6 @@
             modal.classList.remove('open');
             document.body.style.overflow = '';
             
-            // Reset modal custom message
-            const modalCustomMessage = document.getElementById('modal-custom-message');
-            modalCustomMessage.style.display = 'none';
         }
         
         // Function to go to sign in page
