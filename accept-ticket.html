@@ -452,12 +452,6 @@
                     <strong id="sender-name">Loading...</strong> has sent you <span id="ticket-count">Loading...</span> ticket<span id="ticket-plural">s</span>.
                 </p>
                 
-                <!-- Custom Message -->
-                <div id="custom-message-container" class="custom-message" style="display: none;">
-                    <div class="custom-message-content">
-                        <p id="custom-message-text"></p>
-                    </div>
-                </div>
                 
                 <!-- Event Title -->
                 <h2 id="event-title" class="event-title">Loading...</h2>
@@ -637,23 +631,6 @@
                 document.getElementById('event-title').textContent = eventTitle;
                 document.getElementById('event-venue').textContent = eventVenue;
                 
-                // Sanitize and display custom message if it exists
-                if (customMessage && customMessage.trim() !== '') {
-                    // Basic sanitization - remove potentially dangerous content
-                    const sanitizedMessage = customMessage
-                        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
-                        .replace(/javascript:/gi, '') // Remove javascript: protocols
-                        .replace(/on\w+\s*=/gi, '') // Remove event handlers
-                        .trim();
-                    
-                    if (sanitizedMessage.length > 0) {
-                        document.getElementById('custom-message-text').textContent = sanitizedMessage;
-                        document.getElementById('custom-message-container').style.display = 'block';
-                        console.log('Displaying custom message:', sanitizedMessage);
-                    } else {
-                        console.warn('Custom message was sanitized and is now empty');
-                    }
-                }
                 // Combine date and time properly to avoid duplication
                 let fullDateTime;
                 
@@ -753,9 +730,6 @@
             const senderName = document.getElementById('sender-name').textContent;
             
             let declineMessage = `Are you sure you want to decline this ticket from ${senderName}?`;
-            if (customMessage && customMessage.trim() !== '') {
-                declineMessage += `\n\nThey sent you this message: "${customMessage}"`;
-            }
             
             if (confirm(declineMessage)) {
                 // Store decline data in localStorage
